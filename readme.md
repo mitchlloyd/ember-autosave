@@ -27,6 +27,6 @@ Developing
 Thanks
 ------
 
-* Thanks to @nhemsley for making the debounce method context aware.
-* Thanks to @tim-evans for [an example of how to immediately update models if
+* Thanks to [nhemsley](https://github.com/nhemsley) for making the debounce method context aware.
+* Thanks to [tim-evans](https://github.com/tim-evans) for [an example of how to immediately update models if
   they are not being saved](https://gist.github.com/tim-evans/5783095).
