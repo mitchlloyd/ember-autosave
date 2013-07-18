@@ -9,7 +9,7 @@
     _buffers: Ember.Map.create(),
     setUnknownProperty: function(key, value) {
       this._safeSet(key, value);
-      if (this.get('bufferedFields').contains(key)) {
+      if (this._isBufferedField(key)) {
         this._debouncedSave();
       }
       if (this.get('instaSaveFields').contains(key)) {
@@ -25,8 +25,11 @@
         return this._super(key);
       }
     },
+    _isBufferedField: function(key) {
+      return this.get('bufferedFields').contains(key) || Em.isEmpty(this.get('bufferedFields'));
+    },
     _safeSet: function(key, value) {
-      if (this._isInflight()) {
+      if (this._isInflight() && this._isBufferedField(key)) {
         return this.get('_buffers').set(key, value);
       } else {
         return this.get('content').set(key, value);

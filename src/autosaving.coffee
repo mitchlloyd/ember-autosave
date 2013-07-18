@@ -16,15 +16,18 @@ Ember.AutoSaving = Ember.Mixin.create
   # to a buffer if the model isSaving.
   setUnknownProperty: (key, value) ->
     @_safeSet(key, value)
-    @_debouncedSave() if @get('bufferedFields').contains(key)
+    @_debouncedSave() if @_isBufferedField(key)
     @_debouncedSave(now: true) if @get('instaSaveFields').contains(key)
 
   # Pull properties from the buffer if they have been set there.
   unknownProperty: (key) ->
     if @_buffers.has(key) then @_buffers.get(key) else @_super(key)
 
+  _isBufferedField: (key) ->
+    @get('bufferedFields').contains(key) or Em.isEmpty(@get 'bufferedFields')
+
   _safeSet: (key, value) ->
-    if @_isInflight()
+    if @_isInflight() and @_isBufferedField(key)
       @get('_buffers').set(key, value)
     else
       @get('content').set(key, value)
