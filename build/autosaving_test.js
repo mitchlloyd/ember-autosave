@@ -30,30 +30,9 @@
         this.controller.set(field, 'value');
         return this.model.get(field).should.equal('value');
       });
-      return it("reads attributes directly to the model", function() {
+      it("reads attributes directly to the model", function() {
         this.model.set(field, 'value');
         return this.controller.get(field).should.equal('value');
-      });
-    });
-    describe.modelInFlight(function() {
-      it("writes and reads attributes with a buffer", function() {
-        this.controller.set(field, 'value');
-        should.not.exist(this.model.get(field));
-        return this.controller.get(field).should.equal('value');
-      });
-      return it("writes attributes to the model when saving is complete", function() {
-        this.controller.set(field, 'value');
-        this.model.set('isSaving', false);
-        return this.model.get(field).should.equal('value');
-      });
-    });
-    return describe("debounced saving", function() {
-      beforeEach(function() {
-        this.controller.set('content', this.model);
-        return this.clock = sinon.useFakeTimers();
-      });
-      afterEach(function() {
-        return this.clock.restore();
       });
       it("waits to save the model on a bufferedField", function() {
         this.controller.set(field, 'value');
@@ -68,27 +47,32 @@
         return this.model.get(field).should.equal('value');
       });
     });
-  };
-
-  it.behavesLikeANormalAttribute = function(field) {
-    describe.modelInFlight(function() {
-      return it("writes and reads attributes directly to the model", function() {
+    return describe.modelInFlight(function() {
+      it("writes and reads attributes with a buffer", function() {
         this.controller.set(field, 'value');
+        should.not.exist(this.model.get(field));
+        return this.controller.get(field).should.equal('value');
+      });
+      return it("writes attributes to the model when saving is complete", function() {
+        this.controller.set(field, 'value');
+        this.model.set('isSaving', false);
         return this.model.get(field).should.equal('value');
       });
     });
-    return describe("debounced saving", function() {
-      beforeEach(function() {
-        this.controller.set('content', this.model);
-        return this.clock = sinon.useFakeTimers();
-      });
-      afterEach(function() {
-        return this.clock.restore();
-      });
+  };
+
+  it.behavesLikeANormalAttribute = function(field) {
+    describe.modelNotInFlight(function() {
       return it("dosen't save the model on a bufferedField", function() {
         this.controller.set(field, 'value');
         this.clock.tick(1000);
         return this.store.commit.called.should.be["false"];
+      });
+    });
+    return describe.modelInFlight(function() {
+      return it("writes and reads attributes directly to the model", function() {
+        this.controller.set(field, 'value');
+        return this.model.get(field).should.equal('value');
       });
     });
   };
@@ -109,6 +93,7 @@
       AutoSavingController = Ember.ObjectController.extend(Ember.AutoSaving, {
         instaSaveFields: ['instaSaveKey']
       });
+      this.clock = sinon.useFakeTimers();
       this.controller = AutoSavingController.create();
       this.store = {
         commit: sinon.spy()
@@ -116,6 +101,9 @@
       return this.model = FakeModel.create({
         store: this.store
       });
+    });
+    afterEach(function() {
+      return this.clock.restore();
     });
     describe("all attributes", function() {
       return it.behavesLikeABufferedField('key');
@@ -132,6 +120,7 @@
       AutoSavingController = Ember.ObjectController.extend(Ember.AutoSaving, {
         bufferedFields: ['bufferedKey']
       });
+      this.clock = sinon.useFakeTimers();
       this.controller = AutoSavingController.create();
       this.store = {
         commit: sinon.spy()
@@ -139,6 +128,9 @@
       return this.model = FakeModel.create({
         store: this.store
       });
+    });
+    afterEach(function() {
+      return this.clock.restore();
     });
     describe("bufferedKey", function() {
       return it.behavesLikeABufferedField('bufferedKey');

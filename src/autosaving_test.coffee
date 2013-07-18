@@ -27,24 +27,6 @@ it.behavesLikeABufferedField = (field) ->
       @model.set(field, 'value')
       @controller.get(field).should.equal 'value'
 
-  describe.modelInFlight ->
-    it "writes and reads attributes with a buffer", ->
-      @controller.set(field, 'value')
-      should.not.exist @model.get(field)
-      @controller.get(field).should.equal 'value'
-
-    it "writes attributes to the model when saving is complete", ->
-      @controller.set(field, 'value')
-      @model.set('isSaving', false)
-      @model.get(field).should.equal 'value'
-
-  describe "debounced saving", ->
-    beforeEach ->
-      @controller.set 'content', @model
-      @clock = sinon.useFakeTimers()
-
-    afterEach -> @clock.restore()
-
     it "waits to save the model on a bufferedField", ->
       @controller.set(field, 'value')
       @store.commit.called.should.be.false
@@ -57,23 +39,28 @@ it.behavesLikeABufferedField = (field) ->
       @store.commit.called.should.be.true
       @model.get(field).should.equal 'value'
 
-it.behavesLikeANormalAttribute = (field) ->
   describe.modelInFlight ->
-    it "writes and reads attributes directly to the model", ->
+    it "writes and reads attributes with a buffer", ->
       @controller.set(field, 'value')
+      should.not.exist @model.get(field)
+      @controller.get(field).should.equal 'value'
+
+    it "writes attributes to the model when saving is complete", ->
+      @controller.set(field, 'value')
+      @model.set('isSaving', false)
       @model.get(field).should.equal 'value'
 
-  describe "debounced saving", ->
-    beforeEach ->
-      @controller.set 'content', @model
-      @clock = sinon.useFakeTimers()
-
-    afterEach -> @clock.restore()
-
+it.behavesLikeANormalAttribute = (field) ->
+  describe.modelNotInFlight ->
     it "dosen't save the model on a bufferedField", ->
       @controller.set(field, 'value')
       @clock.tick(1000)
       @store.commit.called.should.be.false
+
+  describe.modelInFlight ->
+    it "writes and reads attributes directly to the model", ->
+      @controller.set(field, 'value')
+      @model.get(field).should.equal 'value'
 
 it.behavesLikeAnInstaSaveField = (field) ->
   describe.modelNotInFlight ->
@@ -87,9 +74,13 @@ describe "A controller using the autoSaving mixin", ->
     AutoSavingController = Ember.ObjectController.extend Ember.AutoSaving,
       instaSaveFields: ['instaSaveKey']
 
+    @clock = sinon.useFakeTimers()
+
     @controller = AutoSavingController.create()
     @store = {commit: sinon.spy()}
     @model = FakeModel.create(store: @store)
+
+  afterEach -> @clock.restore()
 
   describe "all attributes", ->
     it.behavesLikeABufferedField('key')
@@ -103,9 +94,13 @@ describe "A controller specifying bufferedFields", ->
     AutoSavingController = Ember.ObjectController.extend Ember.AutoSaving,
       bufferedFields: ['bufferedKey']
 
+    @clock = sinon.useFakeTimers()
+
     @controller = AutoSavingController.create()
     @store = {commit: sinon.spy()}
     @model = FakeModel.create(store: @store)
+
+  afterEach -> @clock.restore()
 
   describe "bufferedKey", ->
     it.behavesLikeABufferedField('bufferedKey')
