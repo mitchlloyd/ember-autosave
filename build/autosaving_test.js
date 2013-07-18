@@ -49,10 +49,6 @@
         this.clock.tick(1000);
         return this.store.commit.called.should.be["true"];
       });
-      it("immediately saves the model on an instaSaveField", function() {
-        this.controller.set('instaSaveKey', 'value');
-        return this.store.commit.called.should.be["true"];
-      });
       return it("immediately saves the model when it is swapped", function() {
         this.controller.set(field, 'value');
         this.controller.set('content', {});
@@ -89,6 +85,18 @@
     });
   };
 
+  it.behavesLikeAnInstaSaveField = function(field) {
+    return describe("when the model isn't inflight", function() {
+      beforeEach(function() {
+        return this.controller.set('content', this.model);
+      });
+      return it("immediately saves the model on an instaSaveField", function() {
+        this.controller.set(field, 'value');
+        return this.store.commit.called.should.be["true"];
+      });
+    });
+  };
+
   describe("A controller using the autoSaving mixin", function() {
     beforeEach(function() {
       var AutoSavingController;
@@ -104,7 +112,12 @@
         store: this.store
       });
     });
-    return it.behavesLikeABufferedField('key');
+    describe("all attributes", function() {
+      return it.behavesLikeABufferedField('key');
+    });
+    return describe("instaSaveKeys", function() {
+      return it.behavesLikeAnInstaSaveField('instaSaveKey');
+    });
   });
 
   describe("A controller specifying bufferedFields", function() {
@@ -112,8 +125,7 @@
       var AutoSavingController;
 
       AutoSavingController = Ember.ObjectController.extend(Ember.AutoSaving, {
-        bufferedFields: ['bufferedKey'],
-        instaSaveFields: ['instaSaveKey']
+        bufferedFields: ['bufferedKey']
       });
       this.controller = AutoSavingController.create();
       this.store = {

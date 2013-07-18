@@ -43,10 +43,6 @@ it.behavesLikeABufferedField = (field) ->
       @clock.tick(1000)
       @store.commit.called.should.be.true
 
-    it "immediately saves the model on an instaSaveField", ->
-      @controller.set('instaSaveKey', 'value')
-      @store.commit.called.should.be.true
-
     it "immediately saves the model when it is swapped", ->
       @controller.set(field, 'value')
       @controller.set('content', {})
@@ -75,6 +71,16 @@ it.behavesLikeANormalAttribute = (field) ->
       @clock.tick(1000)
       @store.commit.called.should.be.false
 
+it.behavesLikeAnInstaSaveField = (field) ->
+  describe "when the model isn't inflight", ->
+    beforeEach ->
+      @controller.set 'content', @model
+
+    it "immediately saves the model on an instaSaveField", ->
+      @controller.set(field, 'value')
+      @store.commit.called.should.be.true
+
+
 describe "A controller using the autoSaving mixin", ->
   beforeEach ->
     AutoSavingController = Ember.ObjectController.extend Ember.AutoSaving,
@@ -84,13 +90,17 @@ describe "A controller using the autoSaving mixin", ->
     @store = {commit: sinon.spy()}
     @model = FakeModel.create(store: @store)
 
-  it.behavesLikeABufferedField('key')
+  describe "all attributes", ->
+    it.behavesLikeABufferedField('key')
+
+  describe "instaSaveKeys", ->
+    it.behavesLikeAnInstaSaveField('instaSaveKey')
+
 
 describe "A controller specifying bufferedFields", ->
   beforeEach ->
     AutoSavingController = Ember.ObjectController.extend Ember.AutoSaving,
       bufferedFields: ['bufferedKey']
-      instaSaveFields: ['instaSaveKey']
 
     @controller = AutoSavingController.create()
     @store = {commit: sinon.spy()}
