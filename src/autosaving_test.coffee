@@ -70,41 +70,32 @@ it.behavesLikeAnInstaSaveField = (field) ->
 
 
 describe "A controller using the autoSaving mixin", ->
+  AutoSavingController = Ember.ObjectController.extend(Ember.AutoSaving)
+
   beforeEach ->
-    AutoSavingController = Ember.ObjectController.extend Ember.AutoSaving,
-      instaSaveFields: ['instaSaveKey']
-
     @clock = sinon.useFakeTimers()
-
-    @controller = AutoSavingController.create()
     @store = {commit: sinon.spy()}
     @model = FakeModel.create(store: @store)
 
   afterEach -> @clock.restore()
 
-  describe "all attributes", ->
-    it.behavesLikeABufferedField('key')
+  describe "only specifying an instaSaveField", ->
+    beforeEach ->
+      @controller = AutoSavingController.create(instaSaveFields: ['instaSaveKey'])
 
-  describe "instaSaveKeys", ->
-    it.behavesLikeAnInstaSaveField('instaSaveKey')
+    describe "all attributes", ->
+      it.behavesLikeABufferedField('key')
 
+    describe "instaSaveKeys", ->
+      it.behavesLikeAnInstaSaveField('instaSaveKey')
 
-describe "A controller specifying bufferedFields", ->
-  beforeEach ->
-    AutoSavingController = Ember.ObjectController.extend Ember.AutoSaving,
-      bufferedFields: ['bufferedKey']
+  describe "specifying bufferedFields", ->
+    beforeEach ->
+      @controller = AutoSavingController.create(bufferedFields: ['bufferedKey'])
 
-    @clock = sinon.useFakeTimers()
+    describe "bufferedKey", ->
+      it.behavesLikeABufferedField('bufferedKey')
 
-    @controller = AutoSavingController.create()
-    @store = {commit: sinon.spy()}
-    @model = FakeModel.create(store: @store)
-
-  afterEach -> @clock.restore()
-
-  describe "bufferedKey", ->
-    it.behavesLikeABufferedField('bufferedKey')
-
-  describe "normal attributes", ->
-    it.behavesLikeANormalAttribute('key')
+    describe "normal attributes", ->
+      it.behavesLikeANormalAttribute('key')
 

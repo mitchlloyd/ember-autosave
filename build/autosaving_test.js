@@ -87,14 +87,11 @@
   };
 
   describe("A controller using the autoSaving mixin", function() {
-    beforeEach(function() {
-      var AutoSavingController;
+    var AutoSavingController;
 
-      AutoSavingController = Ember.ObjectController.extend(Ember.AutoSaving, {
-        instaSaveFields: ['instaSaveKey']
-      });
+    AutoSavingController = Ember.ObjectController.extend(Ember.AutoSaving);
+    beforeEach(function() {
       this.clock = sinon.useFakeTimers();
-      this.controller = AutoSavingController.create();
       this.store = {
         commit: sinon.spy()
       };
@@ -105,38 +102,31 @@
     afterEach(function() {
       return this.clock.restore();
     });
-    describe("all attributes", function() {
-      return it.behavesLikeABufferedField('key');
-    });
-    return describe("instaSaveKeys", function() {
-      return it.behavesLikeAnInstaSaveField('instaSaveKey');
-    });
-  });
-
-  describe("A controller specifying bufferedFields", function() {
-    beforeEach(function() {
-      var AutoSavingController;
-
-      AutoSavingController = Ember.ObjectController.extend(Ember.AutoSaving, {
-        bufferedFields: ['bufferedKey']
+    describe("only specifying an instaSaveField", function() {
+      beforeEach(function() {
+        return this.controller = AutoSavingController.create({
+          instaSaveFields: ['instaSaveKey']
+        });
       });
-      this.clock = sinon.useFakeTimers();
-      this.controller = AutoSavingController.create();
-      this.store = {
-        commit: sinon.spy()
-      };
-      return this.model = FakeModel.create({
-        store: this.store
+      describe("all attributes", function() {
+        return it.behavesLikeABufferedField('key');
+      });
+      return describe("instaSaveKeys", function() {
+        return it.behavesLikeAnInstaSaveField('instaSaveKey');
       });
     });
-    afterEach(function() {
-      return this.clock.restore();
-    });
-    describe("bufferedKey", function() {
-      return it.behavesLikeABufferedField('bufferedKey');
-    });
-    return describe("normal attributes", function() {
-      return it.behavesLikeANormalAttribute('key');
+    return describe("specifying bufferedFields", function() {
+      beforeEach(function() {
+        return this.controller = AutoSavingController.create({
+          bufferedFields: ['bufferedKey']
+        });
+      });
+      describe("bufferedKey", function() {
+        return it.behavesLikeABufferedField('bufferedKey');
+      });
+      return describe("normal attributes", function() {
+        return it.behavesLikeANormalAttribute('key');
+      });
     });
   });
 
