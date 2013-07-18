@@ -73,7 +73,20 @@
       return this._debouncedSave({
         now: true
       });
-    }).observesBefore('content')
+    }).observesBefore('content'),
+	_saveOnCreate: function() {
+		if (this._created) return;
+		
+		this._created = true;
+		return this._debouncedSave();
+	}.observes('content'),
+	delete: function(item) {
+		var transaction = this.get("store").transaction();
+		transaction.add(item);
+        item.deleteRecord();
+		transaction.commit();
+		return this._debouncedSave();
+    }
   });
 
 }).call(this);
