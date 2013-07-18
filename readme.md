@@ -8,6 +8,15 @@ Usage
 Use the mixin in a controller.
 
 ```coffee
+App.DocumentController = Ember.ObjectController.extend(Ember.AutoSaving)
+```
+
+If the user types into a bound text field, the model will save after typing
+stops for 1 second.
+
+#### Getting more granular
+
+```coffee
 App.DocumentController = Ember.ObjectController.extend Ember.AutoSaving,
   bufferedFields: ['title', 'body']
   instaSaveFields: ['postedAt', 'category']
@@ -16,6 +25,10 @@ App.DocumentController = Ember.ObjectController.extend Ember.AutoSaving,
 Fields in `bufferedFields` will save after user input stops for 1 second. Fields
 in `instaSaveFields` will save immediately and save any pending changes in
 `bufferedFields`.
+
+Any fields not listed will behave normally. The model will not automatically
+save and attributes are written directly to the model regardless of whether it
+is currently saving.
 
 Developing
 ----------
