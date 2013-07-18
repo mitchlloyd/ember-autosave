@@ -2,11 +2,23 @@ should = chai.should()
 
 FakeModel = Ember.Object.extend(Ember.Evented)
 
-it.behavesLikeABufferedField = (field) ->
-  describe "when the model isn't inflight", ->
+describe.modelNotInFlight = (tests) ->
+  describe "when the model isn't inFlight", ->
     beforeEach ->
       @controller.set 'content', @model
 
+    tests()
+
+describe.modelInFlight = (tests) ->
+  describe "when the model is inFlight", ->
+    beforeEach ->
+      @model.set('isSaving', true)
+      @controller.set 'content', @model
+
+    tests()
+
+it.behavesLikeABufferedField = (field) ->
+  describe.modelNotInFlight ->
     it "writes attributes directly to the model", ->
       @controller.set(field, 'value')
       @model.get(field).should.equal 'value'
@@ -15,11 +27,7 @@ it.behavesLikeABufferedField = (field) ->
       @model.set(field, 'value')
       @controller.get(field).should.equal 'value'
 
-  describe "when the model is saving", ->
-    beforeEach ->
-      @model.set('isSaving', true)
-      @controller.set 'content', @model
-
+  describe.modelInFlight ->
     it "writes and reads attributes with a buffer", ->
       @controller.set(field, 'value')
       should.not.exist @model.get(field)
@@ -50,11 +58,7 @@ it.behavesLikeABufferedField = (field) ->
       @model.get(field).should.equal 'value'
 
 it.behavesLikeANormalAttribute = (field) ->
-  describe "when the model is saving", ->
-    beforeEach ->
-      @model.set('isSaving', true)
-      @controller.set 'content', @model
-
+  describe.modelInFlight ->
     it "writes and reads attributes directly to the model", ->
       @controller.set(field, 'value')
       @model.get(field).should.equal 'value'
@@ -72,10 +76,7 @@ it.behavesLikeANormalAttribute = (field) ->
       @store.commit.called.should.be.false
 
 it.behavesLikeAnInstaSaveField = (field) ->
-  describe "when the model isn't inflight", ->
-    beforeEach ->
-      @controller.set 'content', @model
-
+  describe.modelNotInFlight ->
     it "immediately saves the model on an instaSaveField", ->
       @controller.set(field, 'value')
       @store.commit.called.should.be.true
@@ -106,9 +107,9 @@ describe "A controller specifying bufferedFields", ->
     @store = {commit: sinon.spy()}
     @model = FakeModel.create(store: @store)
 
-  describe "bufferedKey behaves like a buffered field", ->
+  describe "bufferedKey", ->
     it.behavesLikeABufferedField('bufferedKey')
 
-  describe "normal attributes aren't affected", ->
+  describe "normal attributes", ->
     it.behavesLikeANormalAttribute('key')
 

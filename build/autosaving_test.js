@@ -5,11 +5,27 @@
 
   FakeModel = Ember.Object.extend(Ember.Evented);
 
-  it.behavesLikeABufferedField = function(field) {
-    describe("when the model isn't inflight", function() {
+  describe.modelNotInFlight = function(tests) {
+    return describe("when the model isn't inFlight", function() {
       beforeEach(function() {
         return this.controller.set('content', this.model);
       });
+      return tests();
+    });
+  };
+
+  describe.modelInFlight = function(tests) {
+    return describe("when the model is inFlight", function() {
+      beforeEach(function() {
+        this.model.set('isSaving', true);
+        return this.controller.set('content', this.model);
+      });
+      return tests();
+    });
+  };
+
+  it.behavesLikeABufferedField = function(field) {
+    describe.modelNotInFlight(function() {
       it("writes attributes directly to the model", function() {
         this.controller.set(field, 'value');
         return this.model.get(field).should.equal('value');
@@ -19,11 +35,7 @@
         return this.controller.get(field).should.equal('value');
       });
     });
-    describe("when the model is saving", function() {
-      beforeEach(function() {
-        this.model.set('isSaving', true);
-        return this.controller.set('content', this.model);
-      });
+    describe.modelInFlight(function() {
       it("writes and reads attributes with a buffer", function() {
         this.controller.set(field, 'value');
         should.not.exist(this.model.get(field));
@@ -59,11 +71,7 @@
   };
 
   it.behavesLikeANormalAttribute = function(field) {
-    describe("when the model is saving", function() {
-      beforeEach(function() {
-        this.model.set('isSaving', true);
-        return this.controller.set('content', this.model);
-      });
+    describe.modelInFlight(function() {
       return it("writes and reads attributes directly to the model", function() {
         this.controller.set(field, 'value');
         return this.model.get(field).should.equal('value');
@@ -86,10 +94,7 @@
   };
 
   it.behavesLikeAnInstaSaveField = function(field) {
-    return describe("when the model isn't inflight", function() {
-      beforeEach(function() {
-        return this.controller.set('content', this.model);
-      });
+    return describe.modelNotInFlight(function() {
       return it("immediately saves the model on an instaSaveField", function() {
         this.controller.set(field, 'value');
         return this.store.commit.called.should.be["true"];
@@ -135,10 +140,10 @@
         store: this.store
       });
     });
-    describe("bufferedKey behaves like a buffered field", function() {
+    describe("bufferedKey", function() {
       return it.behavesLikeABufferedField('bufferedKey');
     });
-    return describe("normal attributes aren't affected", function() {
+    return describe("normal attributes", function() {
       return it.behavesLikeANormalAttribute('key');
     });
   });
