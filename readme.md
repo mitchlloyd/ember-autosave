@@ -2,6 +2,8 @@ Take a look at [this blog
 post](http://blog.gaslight.co/post/53361504301/an-autosave-pattern-for-ember-and-ember-data)
 to learn about this library.
 
+This library is compatible with Ember Data up to 0.13. Work is underway to support the Ember Data releases.
+
 Usage
 -----
 
