@@ -48,9 +48,12 @@ Ember.AutoSaving = Ember.Mixin.create
     return unless @get('content.store')
     unless @_isInflight()
       @_flushBuffers()
-      @get('content.store').commit()
+      @_saveModelNow()
     else
       @_debouncedSave()
+
+  _saveModelNow: ->
+    @get('content.store').commit()
 
   _isInflight: ->
     @get('content.isSaving') or @get('content.isLoading')
