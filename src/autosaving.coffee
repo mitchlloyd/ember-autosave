@@ -45,7 +45,6 @@ Ember.AutoSaving = Ember.Mixin.create
   # Write the buffers to the actual content and save or
   # try saving again later.
   _safeSave: ->
-    return unless @get('content.store')
     unless @_isInflight()
       @_flushBuffers()
       @_saveModelNow()
@@ -53,6 +52,7 @@ Ember.AutoSaving = Ember.Mixin.create
       @_debouncedSave()
 
   _saveModelNow: ->
+    return unless @get('content.store')
     @get('content.store').commit()
 
   _isInflight: ->
