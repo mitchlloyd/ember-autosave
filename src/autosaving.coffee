@@ -7,6 +7,11 @@ Ember.AutoSaving = Ember.Mixin.create
   # InstaSave fields save the model as soon as they change.
   instaSaveFields: []
 
+  # Override this method to change how models are saved.
+  saveModelNow: ->
+    return unless @get('content.store')
+    @get('content.store').commit()
+
   # Setup buffers to write to instead of directly editing
   # the model attributes.
   _buffers: Ember.Map.create()
@@ -47,13 +52,9 @@ Ember.AutoSaving = Ember.Mixin.create
   _safeSave: ->
     unless @_isInflight()
       @_flushBuffers()
-      @_saveModelNow()
+      @saveModelNow()
     else
       @_debouncedSave()
-
-  _saveModelNow: ->
-    return unless @get('content.store')
-    @get('content.store').commit()
 
   _isInflight: ->
     @get('content.isSaving') or @get('content.isLoading')

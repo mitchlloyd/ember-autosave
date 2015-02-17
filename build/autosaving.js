@@ -6,6 +6,12 @@
   Ember.AutoSaving = Ember.Mixin.create({
     bufferedFields: [],
     instaSaveFields: [],
+    saveModelNow: function() {
+      if (!this.get('content.store')) {
+        return;
+      }
+      return this.get('content.store').commit();
+    },
     _buffers: Ember.Map.create(),
     setUnknownProperty: function(key, value) {
       this._safeSet(key, value);
@@ -50,12 +56,9 @@
       return this.set('_buffers', Ember.Map.create());
     },
     _safeSave: function() {
-      if (!this.get('content.store')) {
-        return;
-      }
       if (!this._isInflight()) {
         this._flushBuffers();
-        return this.get('content.store').commit();
+        return this.saveModelNow();
       } else {
         return this._debouncedSave();
       }
