@@ -1,7 +1,7 @@
 {
   "name": "ember-autosave",
-  "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "version": "0.2.0",
+  "description": "Periodically save models as they are modified.",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -11,11 +11,11 @@
     "build": "ember build",
     "test": "ember test"
   },
-  "repository": "",
+  "repository": "http://github.com/mitchlloyd/ember-autosave",
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "",
+  "author": "Mitch Lloyd",
   "license": "MIT",
   "devDependencies": {
     "broccoli-asset-rev": "^2.0.0",
@@ -39,7 +39,8 @@
     "body-parser": "^1.12.0"
   },
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "autosave"
   ],
   "ember-addon": {
     "configPath": "tests/dummy/config"
