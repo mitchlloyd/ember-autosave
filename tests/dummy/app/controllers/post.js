@@ -1,6 +1,6 @@
 import Ember from 'ember';
-import { computedAutoSave } from 'ember-autosave';
+import { computedAutosave } from 'ember-autosave';
 
 export default Ember.Controller.extend({
-  post: computedAutoSave('model')
+  post: computedAutosave('model')
 });

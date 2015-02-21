@@ -1,8 +1,8 @@
 import Ember from 'ember';
-import AutoSaveObject from 'ember-autosave';
+import AutosaveObject from 'ember-autosave';
 
 export default Ember.Component.extend({
   post: Ember.computed('model', function() {
-    return AutoSaveObject.create({content: this.get('model')});
+    return AutosaveObject.create({content: this.get('model')});
   })
 });

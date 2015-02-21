@@ -1,23 +1,23 @@
 /* globals sinon */
 import Ember from 'ember';
 import { module, test } from 'qunit';
-import { AutoSaveProxy } from 'ember-autosave';
+import { AutosaveProxy } from 'ember-autosave';
 
 var model;
 var autoSaveObject;
 var clock;
 
-module('AutoSaveProxy - globally overriding the save delay', {
+module('AutosaveProxy - globally overriding the save delay', {
   beforeEach: function() {
-    AutoSaveProxy.config({ saveDelay: 500 });
+    AutosaveProxy.config({ saveDelay: 500 });
     model = Ember.Object.create({ save: sinon.spy() });
-    autoSaveObject = AutoSaveProxy.create({ content: model });
+    autoSaveObject = AutosaveProxy.create({ content: model });
     clock = sinon.useFakeTimers();
   },
 
   afterEach: function() {
     clock.restore();
-    AutoSaveProxy.config({});
+    AutosaveProxy.config({});
   }
 });
 
@@ -27,10 +27,10 @@ test('saves according to the new delay time', function(assert) {
   assert.ok(model.save.called, 'save was called after ellapsed time');
 });
 
-module('AutoSaveProxy - locally overriding the save delay', {
+module('AutosaveProxy - locally overriding the save delay', {
   beforeEach: function() {
     model = Ember.Object.create({ save: sinon.spy() });
-    autoSaveObject = AutoSaveProxy.create({ content: model }, { saveDelay: 250 });
+    autoSaveObject = AutosaveProxy.create({ content: model }, { saveDelay: 250 });
     clock = sinon.useFakeTimers();
   },
 
@@ -45,22 +45,22 @@ test('saves according to the new delay time', function(assert) {
   assert.ok(model.save.called, 'save was called after ellapsed time');
 });
 
-module('AutoSaveProxy - configuring save function globally', {
+module('AutosaveProxy - configuring save function globally', {
   beforeEach: function() {
-    AutoSaveProxy.config({
+    AutosaveProxy.config({
       save: function() {
         this.configuredSave();
       }
     });
 
     model = Ember.Object.create({ configuredSave: sinon.spy() });
-    autoSaveObject = AutoSaveProxy.create({ content: model });
+    autoSaveObject = AutosaveProxy.create({ content: model });
     clock = sinon.useFakeTimers();
   },
 
   afterEach: function() {
     clock.restore();
-    AutoSaveProxy.config({});
+    AutosaveProxy.config({});
   }
 });
 
@@ -71,10 +71,10 @@ test('saves with the configured function', function(assert) {
 });
 
 
-module('AutoSaveProxy - configuring `only` fields', {
+module('AutosaveProxy - configuring `only` fields', {
   beforeEach: function() {
     model = Ember.Object.create({ save: sinon.spy() });
-    autoSaveObject = AutoSaveProxy.create({ content: model }, { only: ['name'] });
+    autoSaveObject = AutosaveProxy.create({ content: model }, { only: ['name'] });
     clock = sinon.useFakeTimers();
   },
 
@@ -94,10 +94,10 @@ test('only saves when specified field is triggred', function(assert) {
 });
 
 
-module('AutoSaveProxy - configuring `except` fields', {
+module('AutosaveProxy - configuring `except` fields', {
   beforeEach: function() {
     model = Ember.Object.create({ save: sinon.spy() });
-    autoSaveObject = AutoSaveProxy.create({ content: model }, { except: ['age'] });
+    autoSaveObject = AutosaveProxy.create({ content: model }, { except: ['age'] });
     clock = sinon.useFakeTimers();
   },
 

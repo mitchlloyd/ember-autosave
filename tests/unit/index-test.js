@@ -1,6 +1,6 @@
 /* globals sinon */
 import Ember from 'ember';
-import { AutoSaveProxy } from 'ember-autosave';
+import { AutosaveProxy } from 'ember-autosave';
 import { module, test } from 'qunit';
 var run = Ember.run;
 
@@ -11,10 +11,10 @@ var clock;
 // TODO: Test experience of having data pushed while typing in field
 // TODO: Evaluate using isDirty property to trigger saving
 
-module('AutoSaveProxy', {
+module('AutosaveProxy', {
   beforeEach: function() {
     model = Ember.Object.create({ save: sinon.spy() });
-    autoSaveObject = AutoSaveProxy.create({ content: model });
+    autoSaveObject = AutosaveProxy.create({ content: model });
     clock = sinon.useFakeTimers();
   },
 

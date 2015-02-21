@@ -23,7 +23,7 @@ function isConfiguredProperty(options, prop) {
   }
 }
 
-var AutoSaveProxy = Ember.ObjectProxy.extend({
+var AutosaveProxy = Ember.ObjectProxy.extend({
   _pendingSave: null,
   _previousContent: null,
   _content: null,
@@ -80,7 +80,7 @@ var AutoSaveProxy = Ember.ObjectProxy.extend({
   }),
 });
 
-AutoSaveProxy.reopenClass({
+AutosaveProxy.reopenClass({
   defaultOptions: {
     // Executed with the context of the model
     save: function() {
@@ -105,17 +105,17 @@ AutoSaveProxy.reopenClass({
   }
 });
 
-export function computedAutoSave(propertyName) {
+export function computedAutosave(propertyName) {
   return computed(propertyName, function(key, value) {
     if (value === undefined) {
       // Getter
-      return AutoSaveProxy.create({ content: get(this, propertyName) });
+      return AutosaveProxy.create({ content: get(this, propertyName) });
     } else {
       // Setter
       set(this, propertyName, value);
-      return AutoSaveProxy.create({ content: get(this, propertyName) });
+      return AutosaveProxy.create({ content: get(this, propertyName) });
     }
   });
 }
 
-export var AutoSaveProxy;
+export var AutosaveProxy;
