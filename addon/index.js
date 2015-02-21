@@ -5,6 +5,7 @@ var setProperties = Ember.setProperties;
 var debounce = Ember.run.debounce;
 var cancel = Ember.run.cancel;
 var computed = Ember.computed;
+var isEmpty = Ember.isEmpty;
 
 var AutoSaveProxy = Ember.Object.extend({
   _pendingSave: null,
@@ -26,7 +27,10 @@ var AutoSaveProxy = Ember.Object.extend({
 
   setUnknownProperty: function(key, value) {
     set(this._content, key, value);
-    this._pendingSave = debounce(this, this._save, get(this, '_saveDelay'));
+
+    if (isEmpty(this._options.only) || Ember.EnumerableUtils.indexOf(this._options.only, key) !== -1) {
+      this._pendingSave = debounce(this, this._save, get(this, '_saveDelay'));
+    }
   },
 
   _save: function() {

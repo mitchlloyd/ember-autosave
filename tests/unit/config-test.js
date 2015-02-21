@@ -1,7 +1,7 @@
 /* globals sinon */
 import Ember from 'ember';
-import { AutoSaveProxy } from 'ember-autosave';
 import { module, test } from 'qunit';
+import { AutoSaveProxy } from 'ember-autosave';
 
 var model;
 var autoSaveObject;
@@ -70,3 +70,25 @@ test('saves with the configured function', function(assert) {
   assert.ok(model.configuredSave.called, 'save was called after ellapsed time');
 });
 
+
+module('AutoSaveProxy - configuring `only` fields', {
+  beforeEach: function() {
+    model = Ember.Object.create({ save: sinon.spy() });
+    autoSaveObject = AutoSaveProxy.create({ content: model }, { only: ['name'] });
+    clock = sinon.useFakeTimers();
+  },
+
+  afterEach: function() {
+    clock.restore();
+  }
+});
+
+test('only saves when specified field is triggred', function(assert) {
+  autoSaveObject.set('age', 97);
+  clock.tick(1000);
+  assert.ok(!model.save.called, 'save was not called');
+
+  autoSaveObject.set('name', 'Millie');
+  clock.tick(1000);
+  assert.ok(model.save.called, 'save was not called after ellapsed time');
+});
