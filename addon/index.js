@@ -1,11 +1,10 @@
 import Ember from 'ember';
 var get = Ember.get;
 var set = Ember.set;
+var setProperties = Ember.setProperties;
 var debounce = Ember.run.debounce;
 var cancel = Ember.run.cancel;
 var computed = Ember.computed;
-
-var BUFFER_DELAY = 1000;
 
 var AutoSaveProxy = Ember.Object.extend({
   _pendingSave: null,
@@ -31,7 +30,7 @@ var AutoSaveProxy = Ember.Object.extend({
   },
 
   saveNow: function() {
-    this._content.save();
+    this._options.save.call(this._content);
     this._pendingSave = null;
   },
 
@@ -57,12 +56,19 @@ var AutoSaveProxy = Ember.Object.extend({
   },
 
   _saveDelay: computed('_options', function() {
-    return get(this, '_options')['saveDelay'] || BUFFER_DELAY;
+    return get(this, '_options')['saveDelay'] ;
   }),
 });
 
 AutoSaveProxy.reopenClass({
-  options: {},
+  defaultOptions: {
+    // Executed with the context of the model
+    save: function() {
+      this.save();
+    },
+
+    saveDelay: 1000
+  },
 
   config: function(options) {
     this.options = options;
@@ -71,13 +77,9 @@ AutoSaveProxy.reopenClass({
   create: function(attrs, options) {
     var obj = this._super(attrs);
 
-    if (this.options) {
-      set(obj, '_options', this.options);
-    }
-
-    if (options) {
-      set(obj, '_options', options);
-    }
+    obj._options = Ember.copy(this.defaultOptions);
+    setProperties(obj._options, this.options);
+    setProperties(obj._options, options);
 
     return obj;
   }
