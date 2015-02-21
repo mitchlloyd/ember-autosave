@@ -105,15 +105,15 @@ AutosaveProxy.reopenClass({
   }
 });
 
-export function computedAutosave(propertyName) {
+export function computedAutosave(propertyName, options) {
   return computed(propertyName, function(key, value) {
     if (value === undefined) {
       // Getter
-      return AutosaveProxy.create({ content: get(this, propertyName) });
+      return AutosaveProxy.create({ content: get(this, propertyName) }, options);
     } else {
       // Setter
       set(this, propertyName, value);
-      return AutosaveProxy.create({ content: get(this, propertyName) });
+      return AutosaveProxy.create({ content: get(this, propertyName) }, options);
     }
   });
 }

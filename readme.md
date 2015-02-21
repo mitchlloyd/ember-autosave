@@ -1,7 +1,7 @@
 # Ember Autosave
 
 This ember-cli addon provides a proxy object that saves a wrapped model when
-its properties are set.
+properties are set.
 
 ## Installation
 
@@ -11,12 +11,13 @@ its properties are set.
 
 ## Usage
 
-There are two primay ways to use the addon:
+There are two primary ways to use the addon: with the computed property macro
+or by creating an AutosaveProxy object.
 
 ### Using the Computed Property
 
-The `ember-autosave` package provides a computed property utility to wrap a
-property in an auto save proxy.
+The `ember-autosave` package provides a computed property macro to wrap a
+property in an AutosaveProxy.
 
 ```javascript
 import Ember from 'ember';
@@ -37,24 +38,66 @@ import { AutosaveProxy } from 'ember-autosave';
 
 export default Ember.Route.extend({
   setupController: function(controller, model) {
-    autosaveProxy = AutosaveProxy.create({ content: model });
+    autosaveProxy = AutksaveProxy.create({ content: model });
     controller.set('model', autosaveProxy);
   }
 });
 ```
 
-## Running
+### Advanced Configuration
 
-* `ember server`
-* Visit your app at http://localhost:4200.
+By default, an AutosaveProxy object will call `save()` on its content once input stops
+for 1 second. You can configure this behavior globally or for each AutosaveProxy
+instance.
 
-## Running Tests
+**Global Configuration**
 
-* `ember test`
-* `ember test --server`
+```javascript
+// Using an initializer is recommended
 
-## Building
+import Ember from 'ember';
+import { AutosaveProxy } from 'ember-autosave';
 
-* `ember build`
+export function initialize() {
+  AutosaveProxy.config({
+    saveDelay: 3000, // Wait 3 seconds after input has stopped to save
+    save: function() {
+      // The context here is the wrapped model
+      this.mySpecialSaveMethod()
+    }
+  });
+}
 
-For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+export default {
+  name: 'setup-ember-autosave',
+  initialize: initialize
+};
+```
+
+
+**Per Instance Configuration**
+
+With the computed property:
+
+```javascript
+import Ember from 'ember';
+import { computedAutosave } from 'ember-autosave';
+
+export default Ember.Controller.extend({
+  post: computedAutosave('model', { saveDelay: 3000 })
+});
+```
+
+With the AutosaveProxy object.
+
+```javascript
+import Ember from 'ember';
+import { AutosaveProxy } from 'ember-autosave';
+
+export default Ember.Route.extend({
+  setupController: function(controller, model) {
+    autosaveProxy = AutosaveProxy.create({ content: model }, {saveDelay: 3000});
+    controller.set('model', autosaveProxy);
+  }
+});
+```
