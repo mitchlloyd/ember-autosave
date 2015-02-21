@@ -1,12 +1,47 @@
-# Ember-cli-autosave
+# Ember Autosave
 
-This README outlines the details of collaborating on this Ember addon.
+This ember-cli addon provides a proxy object that saves a wrapped model when
+its properties are set.
 
 ## Installation
 
-* `git clone` this repository
-* `npm install`
-* `bower install`
+```
+  ember install:addon
+```
+
+## Usage
+
+There are two primay ways to use the addon:
+
+### Using the Computed Property
+
+The `ember-autosave` package provides a computed property utility to wrap a
+property in an auto save proxy.
+
+```javascript
+import Ember from 'ember';
+import { computedAutosave } from 'ember-autosave';
+
+export default Ember.Controller.extend({
+  post: computedAutosave('model')
+});
+```
+
+### Using AutosaveProxy
+
+You may also use the AutosaveProxy object directly.
+
+```javascript
+import Ember from 'ember';
+import { AutosaveProxy } from 'ember-autosave';
+
+export default Ember.Route.extend({
+  setupController: function(controller, model) {
+    autosaveProxy = AutosaveProxy.create({ content: model });
+    controller.set('model', autosaveProxy);
+  }
+});
+```
 
 ## Running
 
