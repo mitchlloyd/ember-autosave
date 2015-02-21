@@ -101,3 +101,9 @@ export default Ember.Route.extend({
   }
 });
 ```
+
+## Demo
+
+To see a demo of this addon you can clone this repository, run `ember server`,
+and visit http://localhost:4200 in your browser.
+
