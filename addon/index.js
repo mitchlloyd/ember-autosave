@@ -23,7 +23,7 @@ function isConfiguredProperty(options, prop) {
   }
 }
 
-var AutoSaveProxy = Ember.Object.extend({
+var AutoSaveProxy = Ember.ObjectProxy.extend({
   _pendingSave: null,
   _previousContent: null,
   _content: null,
