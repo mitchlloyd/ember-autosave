@@ -26,10 +26,10 @@ var AutoSaveProxy = Ember.Object.extend({
 
   setUnknownProperty: function(key, value) {
     set(this._content, key, value);
-    this._pendingSave = debounce(this, this.saveNow, get(this, '_saveDelay'));
+    this._pendingSave = debounce(this, this._save, get(this, '_saveDelay'));
   },
 
-  saveNow: function() {
+  _save: function() {
     this._options.save.call(this._content);
     this._pendingSave = null;
   },
