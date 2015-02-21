@@ -6,7 +6,7 @@ properties are set.
 ## Installation
 
 ```
-  ember install:addon
+ember install:addon ember-autosave
 ```
 
 ## Usage
