@@ -11,6 +11,7 @@ var AutoSaveProxy = Ember.Object.extend({
   _pendingSave: null,
   _previousContent: null,
   _content: null,
+  _options: {},
 
   content: computed('content', function(key, value) {
     if (value === undefined) {
@@ -26,7 +27,7 @@ var AutoSaveProxy = Ember.Object.extend({
 
   setUnknownProperty: function(key, value) {
     set(this._content, key, value);
-    this._pendingSave = debounce(this, this.saveNow, BUFFER_DELAY);
+    this._pendingSave = debounce(this, this.saveNow, get(this, '_saveDelay'));
   },
 
   saveNow: function() {
@@ -53,6 +54,32 @@ var AutoSaveProxy = Ember.Object.extend({
       // Cancel the pending debounced function
       cancel(this._pendingSave);
     }
+  },
+
+  _saveDelay: computed('_options', function() {
+    return get(this, '_options')['saveDelay'] || BUFFER_DELAY;
+  }),
+});
+
+AutoSaveProxy.reopenClass({
+  options: {},
+
+  config: function(options) {
+    this.options = options;
+  },
+
+  create: function(attrs, options) {
+    var obj = this._super(attrs);
+
+    if (this.options) {
+      set(obj, '_options', this.options);
+    }
+
+    if (options) {
+      set(obj, '_options', options);
+    }
+
+    return obj;
   }
 });
 

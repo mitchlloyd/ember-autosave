@@ -8,7 +8,6 @@ var model;
 var autoSaveObject;
 var clock;
 
-// TODO: Setting the delay globally and per instance
 // TODO: Setting save function globally and per instance
 // TODO: Only and expect fields
 // TODO: Test experience of having data pushed while typing in field
@@ -74,4 +73,3 @@ test('changing the content flushes a pending save', function(assert) {
   autoSaveObject.set('content', {});
   assert.ok(model.save.called, 'save was called before the content changed');
 });
-
