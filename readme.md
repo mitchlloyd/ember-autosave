@@ -1,47 +1,109 @@
-Take a look at [this blog
-post](http://blog.gaslight.co/post/53361504301/an-autosave-pattern-for-ember-and-ember-data)
-to learn about this library.
+# Ember Autosave
 
-This library is compatible with Ember Data up to 0.13. Work is underway to support the Ember Data releases.
+This ember-cli addon provides a proxy object that saves a wrapped model when
+properties are set.
 
-Usage
------
+## Installation
 
-Use the mixin in a controller.
-
-```coffee
-App.DocumentController = Ember.ObjectController.extend(Ember.AutoSaving)
+```
+  ember install:addon
 ```
 
-If the user types into a bound text field, the model will save after typing
-stops for 1 second.
+## Usage
 
-#### Getting more granular
+There are two primary ways to use the addon: with the computed property macro
+or by creating an AutosaveProxy object.
 
-```coffee
-App.DocumentController = Ember.ObjectController.extend Ember.AutoSaving,
-  bufferedFields: ['title', 'body']
-  instaSaveFields: ['postedAt', 'category']
+### Using the Computed Property
+
+The `ember-autosave` package provides a computed property macro to wrap a
+property in an AutosaveProxy.
+
+```javascript
+import Ember from 'ember';
+import { computedAutosave } from 'ember-autosave';
+
+export default Ember.Controller.extend({
+  post: computedAutosave('model')
+});
 ```
 
-Fields in `bufferedFields` will save after user input stops for 1 second. Fields
-in `instaSaveFields` will save immediately and save any pending changes in
-`bufferedFields`.
+### Using AutosaveProxy
 
-Any fields not listed will behave normally. The model will not automatically
-save and attributes are written directly to the model regardless of whether it
-is currently saving.
+You may also use the AutosaveProxy object directly.
 
-Developing
-----------
+```javascript
+import Ember from 'ember';
+import { AutosaveProxy } from 'ember-autosave';
 
-    bundle install # install dependencies
-    guard          # watch CoffeeScript files for changes
-    open test.html # run the tests in the browser
+export default Ember.Route.extend({
+  setupController: function(controller, model) {
+    autosaveProxy = AutksaveProxy.create({ content: model });
+    controller.set('model', autosaveProxy);
+  }
+});
+```
 
-Thanks
-------
+### Advanced Configuration
 
-* Thanks to [nhemsley](https://github.com/nhemsley) for making the debounce method context aware.
-* Thanks to [tim-evans](https://github.com/tim-evans) for [an example of how to immediately update models if
-  they are not being saved](https://gist.github.com/tim-evans/5783095).
+By default, an AutosaveProxy object will call `save()` on its content once input stops
+for 1 second. You can configure this behavior globally or for each AutosaveProxy
+instance.
+
+**Global Configuration**
+
+```javascript
+// Using an initializer is recommended
+
+import Ember from 'ember';
+import { AutosaveProxy } from 'ember-autosave';
+
+export function initialize() {
+  AutosaveProxy.config({
+    saveDelay: 3000, // Wait 3 seconds after input has stopped to save
+    save: function() {
+      // The context here is the wrapped model
+      this.mySpecialSaveMethod()
+    }
+  });
+}
+
+export default {
+  name: 'setup-ember-autosave',
+  initialize: initialize
+};
+```
+
+
+**Per Instance Configuration**
+
+With the computed property:
+
+```javascript
+import Ember from 'ember';
+import { computedAutosave } from 'ember-autosave';
+
+export default Ember.Controller.extend({
+  post: computedAutosave('model', { saveDelay: 3000 })
+});
+```
+
+With the AutosaveProxy object.
+
+```javascript
+import Ember from 'ember';
+import { AutosaveProxy } from 'ember-autosave';
+
+export default Ember.Route.extend({
+  setupController: function(controller, model) {
+    autosaveProxy = AutosaveProxy.create({ content: model }, {saveDelay: 3000});
+    controller.set('model', autosaveProxy);
+  }
+});
+```
+
+## Demo
+
+To see a demo of this addon you can clone this repository, run `ember server`,
+and visit http://localhost:4200 in your browser.
+
