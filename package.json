@@ -3,7 +3,6 @@
   "version": "0.2.0",
   "description": "Periodically save models as they are modified.",
   "directories": {
-    "doc": "doc",
     "test": "tests"
   },
   "scripts": {
