@@ -1,6 +1,6 @@
 /* globals sinon */
 import Ember from 'ember';
-import { AutoSaveProxy } from 'ember-cli-autosave/mixin';
+import { AutoSaveProxy } from 'ember-autosave';
 import { module, test } from 'qunit';
 var run = Ember.run;
 
