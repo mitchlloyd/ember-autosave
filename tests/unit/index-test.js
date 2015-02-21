@@ -8,7 +8,6 @@ var model;
 var autoSaveObject;
 var clock;
 
-// TODO: Only and expect fields
 // TODO: Test experience of having data pushed while typing in field
 // TODO: Evaluate using isDirty property to trigger saving
 

@@ -92,3 +92,26 @@ test('only saves when specified field is triggred', function(assert) {
   clock.tick(1000);
   assert.ok(model.save.called, 'save was not called after ellapsed time');
 });
+
+
+module('AutoSaveProxy - configuring `except` fields', {
+  beforeEach: function() {
+    model = Ember.Object.create({ save: sinon.spy() });
+    autoSaveObject = AutoSaveProxy.create({ content: model }, { except: ['age'] });
+    clock = sinon.useFakeTimers();
+  },
+
+  afterEach: function() {
+    clock.restore();
+  }
+});
+
+test('only saves when specified field is triggred', function(assert) {
+  autoSaveObject.set('age', 97);
+  clock.tick(1000);
+  assert.ok(!model.save.called, 'save was not called on `except` property');
+
+  autoSaveObject.set('name', 'Millie');
+  clock.tick(1000);
+  assert.ok(model.save.called, 'save was called');
+});

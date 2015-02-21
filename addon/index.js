@@ -5,7 +5,23 @@ var setProperties = Ember.setProperties;
 var debounce = Ember.run.debounce;
 var cancel = Ember.run.cancel;
 var computed = Ember.computed;
-var isEmpty = Ember.isEmpty;
+var indexOf = Ember.EnumerableUtils.indexOf;
+
+function contains(array, item) {
+  return indexOf(array, item) !== -1;
+}
+
+function isConfiguredProperty(options, prop) {
+  Ember.assert("You can configure the `only` option or the `except` option, but not both", !(options.only && options.except));
+
+  if (options.only) {
+    return contains(options.only, prop);
+  } else if (options.except) {
+    return !contains(options.except, prop);
+  } else {
+    return true;
+  }
+}
 
 var AutoSaveProxy = Ember.Object.extend({
   _pendingSave: null,
@@ -28,7 +44,7 @@ var AutoSaveProxy = Ember.Object.extend({
   setUnknownProperty: function(key, value) {
     set(this._content, key, value);
 
-    if (isEmpty(this._options.only) || Ember.EnumerableUtils.indexOf(this._options.only, key) !== -1) {
+    if (isConfiguredProperty(this._options, key)) {
       this._pendingSave = debounce(this, this._save, get(this, '_saveDelay'));
     }
   },
