@@ -96,7 +96,7 @@ import { AutosaveProxy } from 'ember-autosave';
 
 export default Ember.Route.extend({
   setupController: function(controller, model) {
-    autosaveProxy = AutosaveProxy.create({ content: model }, {saveDelay: 3000});
+    autosaveProxy = AutosaveProxy.create({ content: model }, { saveDelay: 3000 });
     controller.set('model', autosaveProxy);
   }
 });
