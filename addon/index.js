@@ -5,19 +5,14 @@ var setProperties = Ember.setProperties;
 var debounce = Ember.run.debounce;
 var cancel = Ember.run.cancel;
 var computed = Ember.computed;
-var indexOf = Ember.EnumerableUtils.indexOf;
-
-function contains(array, item) {
-  return indexOf(array, item) !== -1;
-}
 
 function isConfiguredProperty(options, prop) {
   Ember.assert("You can configure the `only` option or the `except` option, but not both", !(options.only && options.except));
 
   if (options.only) {
-    return contains(options.only, prop);
+    return options.only.indexOf(prop) !== -1;
   } else if (options.except) {
-    return !contains(options.except, prop);
+    return options.except.indexOf(prop) === -1;
   } else {
     return true;
   }
