@@ -24,12 +24,11 @@ var AutosaveProxy = Ember.ObjectProxy.extend({
   _content: null,
   _options: {},
 
-  content: computed('content', function(key, value) {
-    if (value === undefined) {
-      // Getter
+  content: computed('content', {
+    get: function(){
       return this._content;
-    } else {
-      // Setter
+    },
+    set: function(key, value){
       this._flushPendingSave();
       this._content = value;
       return value;
@@ -101,12 +100,11 @@ AutosaveProxy.reopenClass({
 });
 
 export function computedAutosave(propertyName, options) {
-  return computed(propertyName, function(key, value) {
-    if (value === undefined) {
-      // Getter
+  return computed(propertyName, {
+    get: function(){
       return AutosaveProxy.create({ content: get(this, propertyName) }, options);
-    } else {
-      // Setter
+    },
+    set: function(key, value){
       set(this, propertyName, value);
       return AutosaveProxy.create({ content: get(this, propertyName) }, options);
     }
