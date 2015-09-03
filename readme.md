@@ -6,8 +6,20 @@ properties are set.
 ## Installation
 
 ```
-ember install:addon ember-autosave
+ember install ember-autosave
 ```
+
+### Compatibility
+
+If you are using a version of Ember before 1.12.0, you **must** use version
+0.3.x or older of this library. In general, version 0.3.x of Ember Autosave will
+keep compatibility with the Ember 1.x series (although there may be deprecations
+warnings) and version 1.x.x will keep compatibility with the Ember 2.x series.
+
+| Ember Version    | Ember Autosave       |
+| -----------------|----------------------|
+| 1.8 through 1.13 | 0.3.x                |
+| 2.0 and beyond   | 1.x.x                |
 
 ## Usage
 
