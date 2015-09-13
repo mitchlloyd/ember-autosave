@@ -44,7 +44,16 @@ var AutosaveProxy = Ember.ObjectProxy.extend({
   },
 
   _save: function() {
-    this._options.save(this._content);
+    var saveOption = this._options.save;
+    var saveFunction;
+
+    if (typeof saveOption === 'function') {
+      saveFunction = saveOption;
+    } else {
+      saveFunction = this._options.context[saveOption];
+    }
+
+    saveFunction.call(this._options.context, this._content);
     this._pendingSave = null;
   },
 
@@ -102,10 +111,12 @@ AutosaveProxy.reopenClass({
 export function computedAutosave(propertyName, options) {
   return computed(propertyName, {
     get: function(){
+      options.context = this;
       return AutosaveProxy.create({ content: get(this, propertyName) }, options);
     },
     set: function(key, value){
       set(this, propertyName, value);
+      options.context = this;
       return AutosaveProxy.create({ content: get(this, propertyName) }, options);
     }
   });

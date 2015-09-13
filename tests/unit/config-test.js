@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import sinon from 'sinon';
 import { module, test } from 'qunit';
-import { AutosaveProxy } from 'ember-autosave';
+import autosave, { AutosaveProxy } from 'ember-autosave';
 
 var model;
 var autoSaveObject;
@@ -27,6 +27,7 @@ test('saves according to the new delay time', function(assert) {
   assert.ok(model.save.called, 'save was called after ellapsed time');
 });
 
+
 module('AutosaveProxy - locally overriding the save delay', {
   beforeEach: function() {
     model = Ember.Object.create({ save: sinon.spy() });
@@ -44,6 +45,7 @@ test('saves according to the new delay time', function(assert) {
   clock.tick(250);
   assert.ok(model.save.called, 'save was called after ellapsed time');
 });
+
 
 module('AutosaveProxy - configuring save function globally', {
   beforeEach: function() {
@@ -68,6 +70,30 @@ test('saves with the configured function', function(assert) {
   autoSaveObject.set('name', 'Millie');
   clock.tick(1000);
   assert.ok(model.configuredSave.called, 'save was called after ellapsed time');
+});
+
+
+module('computedAutosave - saving with the CP context', {
+  beforeEach: function() {
+    var Component = Ember.Object.extend({
+      autosaveModel: autosave('model', { save: 'specialSave' }),
+      specialSave: sinon.spy(),
+      model: {}
+    });
+
+    this.component = Component.create();
+    clock = sinon.useFakeTimers();
+  },
+
+  afterEach: function() {
+    clock.restore();
+  }
+});
+
+test("saves with the context's function", function(assert) {
+  this.component.set('autosaveModel.name', 'Millie');
+  clock.tick(1000);
+  assert.ok(this.component.specialSave.called, 'save was called after ellapsed time');
 });
 
 

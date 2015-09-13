@@ -95,7 +95,11 @@ import Ember from 'ember';
 import autosave from 'ember-autosave';
 
 export default Ember.Controller.extend({
-  post: autosave('model', { saveDelay: 3000 })
+  post: autosave('model', { saveDelay: 3000, save: 'specialSave' })
+
+  specialSave(model) {
+    // Your special save logic here
+  }
 });
 ```
 
@@ -107,8 +111,12 @@ import { AutosaveProxy } from 'ember-autosave';
 
 export default Ember.Route.extend({
   setupController: function(controller, model) {
-    autosaveProxy = AutosaveProxy.create({ content: model }, { saveDelay: 3000 });
+    autosaveProxy = AutosaveProxy.create({ content: model }, { saveDelay: 3000, save: this.specialSave.bind(this) });
     controller.set('model', autosaveProxy);
+  },
+
+  specialSave(model) {
+    // Your special save logic here
   }
 });
 ```
