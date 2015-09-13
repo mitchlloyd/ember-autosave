@@ -107,20 +107,45 @@ AutosaveProxy.reopenClass({
   }
 });
 
-export function computedAutosave(propertyName, options) {
-  options = options || {};
+export function computedAutosave(propertyNameArg, optionsArg) {
+  let propertyName, options;
 
-  return computed(propertyName, {
-    get: function(){
+  if (typeof propertyNameArg === 'string') {
+    propertyName = propertyNameArg;
+    options = optionsArg;
+  } else if (typeof propertyNameArg === 'object') {
+    options = propertyNameArg;
+  }
+
+  if (!options) {
+    options = {};
+  }
+
+  let computedArgs = {
+    get: function() {
       options.context = this;
-      return AutosaveProxy.create({ content: get(this, propertyName) }, options);
+
+      let content;
+      if (propertyName) {
+        content = get(this, propertyName);
+      } else {
+        content = {};
+      }
+
+      return AutosaveProxy.create({ content: content }, options);
     },
-    set: function(key, value){
-      set(this, propertyName, value);
-      options.context = this;
-      return AutosaveProxy.create({ content: get(this, propertyName) }, options);
+
+    set: function(key, value, proxy){
+      proxy.set('content', value);
+      return proxy;
     }
-  });
+  };
+
+  if (propertyName) {
+    return computed(propertyName, computedArgs);
+  } else {
+    return computed(computedArgs);
+  }
 }
 
 export default computedAutosave;

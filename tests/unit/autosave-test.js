@@ -7,7 +7,7 @@ const { set } = Ember;
 var model;
 var clock;
 
-module('Using computed property', {
+module('Using autosave computed property', {
   beforeEach: function() {
     model = Ember.Object.create({ save: sinon.spy() });
     clock = sinon.useFakeTimers();
@@ -23,7 +23,6 @@ test('setting a property eventually saves the model with the property', function
     autosaveObject: autosave('model')
   });
 
-  var model = { save: sinon.spy() };
   var component = Component.create({ model: model });
 
   set(component, 'autosaveObject.name', 'Millie');
@@ -31,4 +30,24 @@ test('setting a property eventually saves the model with the property', function
   assert.ok(!model.save.called, 'save was not called immediately');
   clock.tick(1000);
   assert.ok(model.save.called, 'save was called after ellapsed time');
+});
+
+test('specifying a save function without content key', function(assert) {
+  var Component = Ember.Object.extend({
+    someProp: 'some-prop',
+
+    person: autosave({
+      save: function(attrs) {
+        model.save(attrs, this.someProp);
+      }
+    })
+  });
+
+  var component = Component.create();
+
+  set(component, 'person.name', 'Millie');
+
+  clock.tick(1000);
+  assert.ok(model.save.called, 'save was called after ellapsed time');
+  assert.ok(model.save.calledWith({ name: 'Millie' }, 'some-prop'), "called with correct arguments");
 });

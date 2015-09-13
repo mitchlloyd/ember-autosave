@@ -19,18 +19,18 @@ module('Configuration', {
 test('globally overriding saveDelay', function(assert) {
   AutosaveProxy.config({ saveDelay: 500 });
   var model = Ember.Object.create({ save: sinon.spy() });
-  var autoSaveObject = AutosaveProxy.create({ content: model });
+  var autosaveObject = AutosaveProxy.create({ content: model });
 
-  autoSaveObject.set('name', 'Millie');
+  autosaveObject.set('name', 'Millie');
   clock.tick(500);
   assert.ok(model.save.called, 'save was called after ellapsed time');
 });
 
 test('locally overriding saveDelay', function(assert) {
   var model = Ember.Object.create({ save: sinon.spy() });
-  var autoSaveObject = AutosaveProxy.create({ content: model }, { saveDelay: 250 });
+  var autosaveObject = AutosaveProxy.create({ content: model }, { saveDelay: 250 });
 
-  autoSaveObject.set('name', 'Millie');
+  autosaveObject.set('name', 'Millie');
   clock.tick(250);
   assert.ok(model.save.called, 'save was called after ellapsed time');
 });
