@@ -111,4 +111,6 @@ export function computedAutosave(propertyName, options) {
   });
 }
 
+export default computedAutosave;
+
 export var AutosaveProxy;

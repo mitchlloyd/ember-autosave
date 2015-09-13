@@ -33,10 +33,10 @@ property in an AutosaveProxy.
 
 ```javascript
 import Ember from 'ember';
-import { computedAutosave } from 'ember-autosave';
+import autosave from 'ember-autosave';
 
 export default Ember.Controller.extend({
-  post: computedAutosave('model')
+  post: autosave('model')
 });
 ```
 
@@ -92,10 +92,10 @@ With the computed property:
 
 ```javascript
 import Ember from 'ember';
-import { computedAutosave } from 'ember-autosave';
+import autosave from 'ember-autosave';
 
 export default Ember.Controller.extend({
-  post: computedAutosave('model', { saveDelay: 3000 })
+  post: autosave('model', { saveDelay: 3000 })
 });
 ```
 
