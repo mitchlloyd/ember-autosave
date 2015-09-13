@@ -98,8 +98,8 @@ function save(autosaveProxy) {
     saveFunction = context[saveOption];
   }
 
-  saveFunction.call(context, autosaveProxy._content);
   autosaveProxy._pendingSave = null;
+  return saveFunction.call(context, autosaveProxy._content);
 }
 
 function flushPendingSave(autosaveProxy) {
@@ -108,13 +108,17 @@ function flushPendingSave(autosaveProxy) {
     var context = pendingSave[0];
     var fn = pendingSave[1];
 
-    // Immediately call the pending save
-    fn(context);
-
     // Cancel the pending debounced function
-    cancel(pendingSave);
+    cancel(autosaveProxy);
+
+    // Immediately call the pending save
+    return fn(context);
   }
 }
 
+function cancelPendingSave(autosaveProxy) {
+  cancel(autosaveProxy._pendingSave);
+}
+
 export default AutosaveProxy;
-export { flushPendingSave };
+export { flushPendingSave, cancelPendingSave };
