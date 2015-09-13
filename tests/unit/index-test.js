@@ -2,7 +2,6 @@
 import Ember from 'ember';
 import { AutosaveProxy } from 'ember-autosave';
 import { module, test } from 'qunit';
-var run = Ember.run;
 
 var model;
 var autoSaveObject;
