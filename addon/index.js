@@ -85,7 +85,6 @@ var AutosaveProxy = Ember.ObjectProxy.extend({
 
 AutosaveProxy.reopenClass({
   defaultOptions: {
-    // Executed with the context of the model
     save: function(model) {
       model.save();
     },
