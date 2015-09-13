@@ -48,8 +48,8 @@ test('saves according to the new delay time', function(assert) {
 module('AutosaveProxy - configuring save function globally', {
   beforeEach: function() {
     AutosaveProxy.config({
-      save: function() {
-        this.configuredSave();
+      save: function(model) {
+        model.configuredSave();
       }
     });
 

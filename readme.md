@@ -73,9 +73,8 @@ import { AutosaveProxy } from 'ember-autosave';
 export function initialize() {
   AutosaveProxy.config({
     saveDelay: 3000, // Wait 3 seconds after input has stopped to save
-    save: function() {
-      // The context here is the wrapped model
-      this.mySpecialSaveMethod()
+    save: function(model) {
+      model.mySpecialSaveMethod()
     }
   });
 }

@@ -44,7 +44,7 @@ var AutosaveProxy = Ember.ObjectProxy.extend({
   },
 
   _save: function() {
-    this._options.save.call(this._content);
+    this._options.save(this._content);
     this._pendingSave = null;
   },
 
@@ -77,8 +77,8 @@ var AutosaveProxy = Ember.ObjectProxy.extend({
 AutosaveProxy.reopenClass({
   defaultOptions: {
     // Executed with the context of the model
-    save: function() {
-      this.save();
+    save: function(model) {
+      model.save();
     },
 
     saveDelay: 1000
