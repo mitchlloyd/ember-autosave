@@ -25,10 +25,13 @@ warnings) and version 1.x.x will keep compatibility with the Ember 2.x series.
 The primary way to use this addon is with the computed property macro called
 'autosave'.  You can also use underlying AutosaveProxy object.
 
-### Using the Computed Property
+### Using `autosave`
 
 The `ember-autosave` package provides a computed property macro to wrap a
 property in an AutosaveProxy.
+
+In this example, the proxy will call `save()` on the component's model property
+after one second.
 
 ```javascript
 import Ember from 'ember';
@@ -36,6 +39,43 @@ import autosave from 'ember-autosave';
 
 export default Ember.Component.extend({
   post: autosave('model')
+});
+```
+
+You don't have to specify a property to proxy to if you don't need this
+behavior.  The library will store attributes on a blank object for you to use in
+a save function.
+
+```javascript
+import Ember from 'ember';
+import autosave from 'ember-autosave';
+const { inject } = Ember;
+
+export default Ember.Component.extend({
+  store: inject.service();
+
+  post: autosave({
+    save(attributes) {
+      this.get('store').createRecord(attributes).save();
+    }
+  })
+});
+```
+
+Naturally, you may want to immediately update the properties on some model
+and have a custom `save` function.
+
+```javascript
+import Ember from 'ember';
+import autosave from 'ember-autosave';
+
+export default Ember.Component.extend({
+  post: autosave('model', {
+    save(model) {
+      model.set('user', this.get('user'));
+      model.save();
+    }
+  })
 });
 ```
 
@@ -62,16 +102,18 @@ instance.
 
 **Global Configuration**
 
-```javascript
-// I recommend using an initializer
+You can configure `AutosaveProxy` from anywhere, but you should probably use an
+initializer.
 
+```javascript
 import Ember from 'ember';
 import { AutosaveProxy } from 'ember-autosave';
 
 export function initialize() {
   AutosaveProxy.config({
     saveDelay: 3000, // Wait 3 seconds after input has stopped to save
-    save: function(model) {
+
+    save(model) {
       model.mySpecialSaveMethod()
     }
   });
@@ -86,14 +128,19 @@ export default {
 
 **Per Instance Configuration**
 
-With the computed property:
+With the `autosave` computed property:
 
 ```javascript
 import Ember from 'ember';
 import autosave from 'ember-autosave';
 
 export default Ember.Component.extend({
-  post: autosave('model', { saveDelay: 3000, save: 'specialSave' })
+  post: autosave('model', {
+    saveDelay: 3000,
+
+    // Can be a function or a string pointing to a method.
+    save: 'specialSave'
+  })
 
   specialSave(model) {
     // Your special save logic here
@@ -126,3 +173,64 @@ export default Ember.Component.extend({
 To see a demo of this addon you can clone this repository, run `ember server`,
 and visit http://localhost:4200 in your browser.
 
+## Upgrading to 1.0
+
+There is one breaking change when migrating from an earlier version to 1.0. In
+earlier versions, configured `save` functions were invoked with the context of
+the proxy content.
+
+```javascript
+import Ember from 'ember';
+import autosave from 'ember-autosave';
+
+export default Ember.Component.extend({
+  post: autosave('model', {
+    save() {
+      // `this` is the model property
+      this.save();
+    }
+  })
+});
+```
+
+In 1.0 the context of the `save` function is the instance of the object where
+the autosave property was defined (probably what you would expect). The `save`
+method receives the model as an argument.
+
+```javascript
+import Ember from 'ember';
+import autosave from 'ember-autosave';
+
+export default Ember.Component.extend({
+  someProp: 'hi',
+
+  post: autosave('model', {
+    save(model) {
+      this.get('someProp'); // 'hi'
+      model.save();
+    }
+  })
+});
+```
+
+Globally configured save functions will need to be updated.
+
+Pre 1.0:
+
+```
+AutosaveProxy.config({
+  save() {
+    this.mySpecialSaveMethod();
+  }
+});
+```
+
+1.0 and beyond:
+
+```
+AutosaveProxy.config({
+  save(model) {
+    model.mySpecialSaveMethod();
+  }
+});
+```
