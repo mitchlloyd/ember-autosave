@@ -32,6 +32,21 @@ test('setting a property eventually saves the model with the property', function
   assert.ok(model.save.called, 'save was called after ellapsed time');
 });
 
+test("using the computed property context and string for save", function(assert) {
+  var Component = Ember.Object.extend({
+    autosaveModel: autosave('model', { save: 'specialSave' }),
+
+    specialSave: function(model) {
+      model.save();
+    }
+  });
+
+  var component = Component.create({ model: model });
+  component.set('autosaveModel.name', 'Millie');
+  clock.tick(1000);
+  assert.ok(model.save.called, 'save was called after ellapsed time');
+});
+
 test('specifying a save function without content key', function(assert) {
   var Component = Ember.Object.extend({
     someProp: 'some-prop',

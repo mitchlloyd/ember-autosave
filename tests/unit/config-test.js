@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import sinon from 'sinon';
 import { module, test } from 'qunit';
-import autosave, { AutosaveProxy } from 'ember-autosave';
+import { AutosaveProxy } from 'ember-autosave';
 
 var clock;
 
@@ -48,19 +48,6 @@ test('globally overriding save function', function(assert) {
   autoSaveObject.set('name', 'Millie');
   clock.tick(1000);
   assert.ok(model.configuredSave.called, 'save was called after ellapsed time');
-});
-
-test("using the CP context and string for save", function(assert) {
-  var Component = Ember.Object.extend({
-    autosaveModel: autosave('model', { save: 'specialSave' }),
-    specialSave: sinon.spy(),
-    model: {}
-  });
-
-  var component = Component.create();
-  component.set('autosaveModel.name', 'Millie');
-  clock.tick(1000);
-  assert.ok(component.specialSave.called, 'save was called after ellapsed time');
 });
 
 test('Configuring only fields - only saves when specified field is triggred', function(assert) {
