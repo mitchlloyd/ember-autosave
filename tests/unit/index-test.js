@@ -8,9 +8,6 @@ var model;
 var autoSaveObject;
 var clock;
 
-// TODO: Test experience of having data pushed while typing in field
-// TODO: Evaluate using isDirty property to trigger saving
-
 module('AutosaveProxy', {
   beforeEach: function() {
     model = Ember.Object.create({ save: sinon.spy() });
