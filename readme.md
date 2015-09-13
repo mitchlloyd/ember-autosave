@@ -1,4 +1,4 @@
-# Ember Autosave
+# Ember Autosave [![Build Status](https://travis-ci.org/mitchlloyd/ember-autosave.svg)](https://travis-ci.org/mitchlloyd/ember-autosave)
 
 This ember-cli addon provides a proxy object that saves a wrapped model when
 properties are set.
