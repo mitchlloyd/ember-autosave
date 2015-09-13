@@ -1,7 +1,6 @@
 # Ember Autosave [![Build Status](https://travis-ci.org/mitchlloyd/ember-autosave.svg)](https://travis-ci.org/mitchlloyd/ember-autosave)
 
-This ember-cli addon provides a proxy object that saves a wrapped model when
-properties are set.
+Ember Autosave periodically saves your models when their properties are set.
 
 ## Installation
 
@@ -23,8 +22,8 @@ warnings) and version 1.x.x will keep compatibility with the Ember 2.x series.
 
 ## Usage
 
-There are two primary ways to use the addon: with the computed property macro
-or by creating an AutosaveProxy object.
+The primary way to use this addon is with the computed property macro called
+'autosave'.  You can also use underlying AutosaveProxy object.
 
 ### Using the Computed Property
 
@@ -35,7 +34,7 @@ property in an AutosaveProxy.
 import Ember from 'ember';
 import autosave from 'ember-autosave';
 
-export default Ember.Controller.extend({
+export default Ember.Component.extend({
   post: autosave('model')
 });
 ```
@@ -49,9 +48,8 @@ import Ember from 'ember';
 import { AutosaveProxy } from 'ember-autosave';
 
 export default Ember.Route.extend({
-  setupController: function(controller, model) {
-    autosaveProxy = AutosaveProxy.create({ content: model });
-    controller.set('model', autosaveProxy);
+  didReceiveAttrs() {
+    this.post = AutosaveProxy.create({ content: this.get('model') });
   }
 });
 ```
@@ -65,7 +63,7 @@ instance.
 **Global Configuration**
 
 ```javascript
-// Using an initializer is recommended
+// I recommend using an initializer
 
 import Ember from 'ember';
 import { AutosaveProxy } from 'ember-autosave';
@@ -94,7 +92,7 @@ With the computed property:
 import Ember from 'ember';
 import autosave from 'ember-autosave';
 
-export default Ember.Controller.extend({
+export default Ember.Component.extend({
   post: autosave('model', { saveDelay: 3000, save: 'specialSave' })
 
   specialSave(model) {
@@ -109,10 +107,12 @@ With the AutosaveProxy object.
 import Ember from 'ember';
 import { AutosaveProxy } from 'ember-autosave';
 
-export default Ember.Route.extend({
-  setupController: function(controller, model) {
-    autosaveProxy = AutosaveProxy.create({ content: model }, { saveDelay: 3000, save: this.specialSave.bind(this) });
-    controller.set('model', autosaveProxy);
+export default Ember.Component.extend({
+  didReceiveAttrs() {
+    this.post = AutosaveProxy.create(
+      { content: model },
+      { saveDelay: 3000, save: this.specialSave.bind(this) }
+    );
   },
 
   specialSave(model) {
