@@ -108,6 +108,8 @@ AutosaveProxy.reopenClass({
 });
 
 export function computedAutosave(propertyName, options) {
+  options = options || {};
+
   return computed(propertyName, {
     get: function(){
       options.context = this;
