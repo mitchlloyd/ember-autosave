@@ -1,5 +1,5 @@
-/* globals sinon */
 import Ember from 'ember';
+import sinon from 'sinon';
 import { AutosaveProxy } from 'ember-autosave';
 import { module, test } from 'qunit';
 
