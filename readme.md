@@ -217,7 +217,7 @@ Globally configured save functions will need to be updated.
 
 Pre 1.0:
 
-```
+```javascript
 AutosaveProxy.config({
   save() {
     this.mySpecialSaveMethod();
@@ -227,7 +227,7 @@ AutosaveProxy.config({
 
 1.0 and beyond:
 
-```
+```javascript
 AutosaveProxy.config({
   save(model) {
     model.mySpecialSaveMethod();
