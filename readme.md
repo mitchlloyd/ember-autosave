@@ -27,11 +27,11 @@ The primary way to use this addon is with the computed property macro called
 
 ### Using `autosave`
 
-The `ember-autosave` package provides a computed property macro to wrap a
-property in an AutosaveProxy.
+The `ember-autosave` package provides a computed property macro to wrap an
+object in an AutosaveProxy.
 
-In this example, the proxy will call `save()` on the component's model property
-after one second.
+In this example, the proxy will call `save()` on the object stored in the
+component's `model` property one second after one of its properties is `set`.
 
 ```javascript
 import Ember from 'ember';
@@ -42,9 +42,10 @@ export default Ember.Component.extend({
 });
 ```
 
-You don't have to specify a property to proxy to if you don't need this
-behavior.  The library will store attributes on a blank object for you to use in
-a save function.
+It might be the case that the model data you're working with is internal to a
+component and was not passed in as an object. In this case you don't have to
+pass a string representing a property to `autosave`. The library will store
+attributes on a blank object that will be passed to a provided save function.
 
 ```javascript
 import Ember from 'ember';
@@ -63,7 +64,7 @@ export default Ember.Component.extend({
 ```
 
 Naturally, you may want to immediately update the properties on some model
-and have a custom `save` function.
+and also provide a custom `save` function.
 
 ```javascript
 import Ember from 'ember';
