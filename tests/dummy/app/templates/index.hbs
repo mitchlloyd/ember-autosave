@@ -1,3 +1,20 @@
+<p>
+  In this demo, both post models will be saved whenever their title and body are set.
+</p>
+
+<p>
+  Visit the first post, edit its properties, and watch your terminal to see the
+  resulting PUT calls. Refresh the browser and your changes will be saved.
+</p>
+
+<p>
+  The second post is setup so that new values are pushed into the store every 1
+  second. In the past, having dirty models during a push to the store caused
+  errors in Ember Data. This part of the demo remains to examine what happens
+  if a user editing a value gets a live update, perhaps via a websocket or a
+  polling request.
+</p>
+
 <ul>
   {{#each model as |post|}}
     <li>
