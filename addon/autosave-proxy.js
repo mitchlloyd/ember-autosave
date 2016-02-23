@@ -5,7 +5,7 @@ var debounce = Ember.run.debounce;
 var cancel = Ember.run.cancel;
 var computed = Ember.computed;
 
-var AutosaveProxy = Ember.ObjectProxy.extend({
+var AutosaveProxy = Ember.Object.extend({
   _pendingSave: null,
   _options: null,
   _content: null,
