@@ -67,3 +67,11 @@ test('changing the content flushes a pending save', function(assert) {
   autosaveObject.set('content', {});
   assert.ok(model.save.called, 'save was called before the content changed');
 });
+
+test('setting a property to the same value', function(assert) {
+  model.set('will-set-same-value', 1);
+  autosaveObject.set('will-set-same-value', 1);
+
+  clock.tick(1000);
+  assert.ok(!model.save.called, 'save was not called on same value');
+});
