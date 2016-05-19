@@ -1,5 +1,6 @@
 import Ember from 'ember';
 var set = Ember.set;
+var get = Ember.get;
 var setProperties = Ember.setProperties;
 var debounce = Ember.run.debounce;
 var cancel = Ember.run.cancel;
@@ -24,7 +25,10 @@ var AutosaveProxy = Ember.Object.extend({
 
   setUnknownProperty: function(key, value) {
     var oldValue = Ember.get(this._content, key);
+
+    this.propertyWillChange(key);
     set(this._content, key, value);
+    this.propertyDidChange(key);
 
     if (isConfiguredProperty(this._options, key) && (oldValue !== value)) {
       var saveDelay = this._options.saveDelay;
@@ -33,7 +37,7 @@ var AutosaveProxy = Ember.Object.extend({
   },
 
   unknownProperty: function(key) {
-    return this._content.get(key);
+    return get(this._content, key);
   },
 
   willDestroy: function() {
