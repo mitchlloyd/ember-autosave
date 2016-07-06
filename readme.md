@@ -88,7 +88,7 @@ You may also use the AutosaveProxy object directly.
 import Ember from 'ember';
 import { AutosaveProxy } from 'ember-autosave';
 
-export default Ember.Route.extend({
+export default Ember.Component.extend({
   didReceiveAttrs() {
     this.post = AutosaveProxy.create({ content: this.get('model') });
   }
