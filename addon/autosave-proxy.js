@@ -114,7 +114,7 @@ function flushPendingSave(autosaveProxy) {
     var fn = pendingSave[1];
 
     // Cancel the pending debounced function
-    cancel(autosaveProxy);
+    cancel(pendingSave);
 
     // Immediately call the pending save
     return fn(context);
