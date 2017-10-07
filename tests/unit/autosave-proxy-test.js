@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import sinon from 'sinon';
-import { AutosaveProxy } from 'ember-autosave';
+import { AutosaveProxy, flushPendingSave } from 'ember-autosave';
 import { module, test } from 'qunit';
 
 var model;
@@ -74,4 +74,15 @@ test('setting a property to the same value', function(assert) {
 
   clock.tick(1000);
   assert.ok(!model.save.called, 'save was not called on same value');
+});
+
+test('flushPendingSave cancels debounced save', function(assert) {
+  autosaveObject.set('name', 'Millie');
+  assert.ok(!model.save.called, 'save was not called immediately');
+
+  flushPendingSave(autosaveObject);
+  assert.equal(model.save.callCount, 1, 'save called once after calling flushPendingSave');
+
+  clock.tick(1000);
+  assert.equal(model.save.callCount, 1, 'save not called later from debounce');
 });
