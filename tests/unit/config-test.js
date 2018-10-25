@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 import sinon from 'sinon';
 import { module, test } from 'qunit';
 import { AutosaveProxy } from 'ember-autosave';
@@ -18,7 +18,7 @@ module('Configuration', {
 
 test('globally overriding saveDelay', function(assert) {
   AutosaveProxy.config({ saveDelay: 500 });
-  var model = Ember.Object.create({ save: sinon.spy() });
+  var model = EmberObject.create({ save: sinon.spy() });
   var autosaveObject = AutosaveProxy.create({ content: model });
 
   autosaveObject.set('name', 'Millie');
@@ -27,7 +27,7 @@ test('globally overriding saveDelay', function(assert) {
 });
 
 test('locally overriding saveDelay', function(assert) {
-  var model = Ember.Object.create({ save: sinon.spy() });
+  var model = EmberObject.create({ save: sinon.spy() });
   var autosaveObject = AutosaveProxy.create({ content: model }, { saveDelay: 250 });
 
   autosaveObject.set('name', 'Millie');
@@ -42,7 +42,7 @@ test('globally overriding save function', function(assert) {
     }
   });
 
-  var model = Ember.Object.create({ configuredSave: sinon.spy() });
+  var model = EmberObject.create({ configuredSave: sinon.spy() });
   var autoSaveObject = AutosaveProxy.create({ content: model });
 
   autoSaveObject.set('name', 'Millie');
@@ -51,7 +51,7 @@ test('globally overriding save function', function(assert) {
 });
 
 test('Configuring only fields - only saves when specified field is triggred', function(assert) {
-  var model = Ember.Object.create({ save: sinon.spy() });
+  var model = EmberObject.create({ save: sinon.spy() });
   var autoSaveObject = AutosaveProxy.create({ content: model }, { only: ['name'] });
 
   autoSaveObject.set('age', 97);
@@ -64,7 +64,7 @@ test('Configuring only fields - only saves when specified field is triggred', fu
 });
 
 test('configuring `except` fields - only saves when specified field is triggred', function(assert) {
-  var model = Ember.Object.create({ save: sinon.spy() });
+  var model = EmberObject.create({ save: sinon.spy() });
   var autoSaveObject = AutosaveProxy.create({ content: model }, { except: ['age'] });
 
   autoSaveObject.set('age', 97);

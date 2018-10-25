@@ -1,8 +1,5 @@
-import Ember from 'ember';
+import { get, set, computed } from '@ember/object';
 import AutosaveProxy from './autosave-proxy';
-var get = Ember.get;
-var set = Ember.set;
-var computed = Ember.computed;
 
 export default function computedAutosave() {
   let propertyName, options;

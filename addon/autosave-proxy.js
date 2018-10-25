@@ -1,12 +1,12 @@
-import Ember from 'ember';
-var set = Ember.set;
-var get = Ember.get;
-var setProperties = Ember.setProperties;
-var debounce = Ember.run.debounce;
-var cancel = Ember.run.cancel;
-var computed = Ember.computed;
+import { assert } from '@ember/debug';
+import { debounce, cancel } from '@ember/runloop';
+import EmberObject, {
+  set,
+  get,
+  computed
+} from '@ember/object';
 
-var AutosaveProxy = Ember.Object.extend({
+var AutosaveProxy = EmberObject.extend({
   _pendingSave: null,
   _options: null,
   _content: null,
@@ -24,12 +24,11 @@ var AutosaveProxy = Ember.Object.extend({
   }),
 
   setUnknownProperty: function(key, value) {
-    var oldValue = Ember.get(this._content, key);
+    var oldValue = get(this._content, key);
 
     if (oldValue !== value) {
-      this.propertyWillChange(key);
       set(this._content, key, value);
-      this.propertyDidChange(key);
+      this.notifyPropertyChange(key);
 
       if (isConfiguredProperty(this._options, key)) {
         var saveDelay = this._options.saveDelay;
@@ -61,14 +60,12 @@ AutosaveProxy.reopenClass({
   },
 
   create: function(attrs, localOptions) {
-    // Default library options
-    let options = Ember.copy(this.defaultOptions);
-
-    // Global custom config options
-    setProperties(options, this.options);
-
-    // Local custom config options
-    setProperties(options, localOptions);
+    let options = Object.assign(
+      {},
+      this.defaultOptions, // Default library options
+      this.options, // Global custom config options
+      localOptions, // Local custom config options
+    );
 
     attrs._options = options;
 
@@ -83,7 +80,7 @@ AutosaveProxy.reopenClass({
 });
 
 function isConfiguredProperty(options, prop) {
-  Ember.assert("You can configure the `only` option or the `except` option, but not both", !(options.only && options.except));
+  assert("You can configure the `only` option or the `except` option, but not both", !(options.only && options.except));
 
   if (options.only) {
     return options.only.indexOf(prop) !== -1;
@@ -111,15 +108,12 @@ function save(autosaveProxy) {
 
 function flushPendingSave(autosaveProxy) {
   let pendingSave = autosaveProxy._pendingSave;
-  if (pendingSave) {
-    var context = pendingSave[0];
-    var fn = pendingSave[1];
-
+  if (pendingSave !== null) {
     // Cancel the pending debounced function
     cancel(pendingSave);
 
-    // Immediately call the pending save
-    return fn(context);
+    // Immediately call save
+    return save(autosaveProxy);
   }
 }
 

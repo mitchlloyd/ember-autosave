@@ -1,4 +1,7 @@
-import AutosaveProxy, { flushPendingSave, cancelPendingSave } from './autosave-proxy';
+import AutosaveProxy, {
+  flushPendingSave,
+  cancelPendingSave
+} from './autosave-proxy';
 import computedAutosave from './computed-autosave';
 
 export default computedAutosave;

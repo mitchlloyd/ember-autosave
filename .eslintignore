@@ -17,3 +17,9 @@
 /.node_modules.ember-try/
 /bower.json.ember-try
 /package.json.ember-try
+
+# eslint config
+.eslintrc.js
+
+# Node manual testing server
+/server/

@@ -1,15 +1,14 @@
-import Ember from 'ember';
+import EmberObject, { set } from '@ember/object';
 import sinon from 'sinon';
 import autosave from 'ember-autosave';
 import { module, test } from 'qunit';
-const { set } = Ember;
 
 var model;
 var clock;
 
 module('Using autosave computed property', {
   beforeEach: function() {
-    model = Ember.Object.create({ save: sinon.spy() });
+    model = EmberObject.create({ save: sinon.spy() });
     clock = sinon.useFakeTimers();
   },
 
@@ -19,7 +18,7 @@ module('Using autosave computed property', {
 });
 
 test('setting a property eventually saves the model with the property', function(assert) {
-  var Component = Ember.Object.extend({
+  var Component = EmberObject.extend({
     autosaveObject: autosave('model')
   });
 
@@ -33,7 +32,7 @@ test('setting a property eventually saves the model with the property', function
 });
 
 test("using the computed property context and string for save", function(assert) {
-  var Component = Ember.Object.extend({
+  var Component = EmberObject.extend({
     autosaveModel: autosave('model', { save: 'specialSave' }),
 
     specialSave: function(model) {
@@ -48,7 +47,7 @@ test("using the computed property context and string for save", function(assert)
 });
 
 test('specifying a save function without content key', function(assert) {
-  var Component = Ember.Object.extend({
+  var Component = EmberObject.extend({
     someProp: 'some-prop',
 
     person: autosave({
