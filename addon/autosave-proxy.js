@@ -6,7 +6,7 @@ import EmberObject, {
   computed
 } from '@ember/object';
 
-var AutosaveProxy = EmberObject.extend({
+let AutosaveProxy = EmberObject.extend({
   _pendingSave: null,
   _options: null,
   _content: null,
@@ -24,14 +24,14 @@ var AutosaveProxy = EmberObject.extend({
   }),
 
   setUnknownProperty: function(key, value) {
-    var oldValue = get(this._content, key);
+    let oldValue = get(this._content, key);
 
     if (oldValue !== value) {
       set(this._content, key, value);
       this.notifyPropertyChange(key);
 
       if (isConfiguredProperty(this._options, key)) {
-        var saveDelay = this._options.saveDelay;
+        let saveDelay = this._options.saveDelay;
         this._pendingSave = debounce(this, save, this, saveDelay);
       }
     }
@@ -73,7 +73,7 @@ AutosaveProxy.reopenClass({
       attrs.content = {};
     }
 
-    var obj = this._super(attrs);
+    let obj = this._super(attrs);
 
     return obj;
   }
@@ -92,10 +92,10 @@ function isConfiguredProperty(options, prop) {
 }
 
 function save(autosaveProxy) {
-  var context = autosaveProxy._options.context;
-  var saveOption = autosaveProxy._options.save;
+  let context = autosaveProxy._options.context;
+  let saveOption = autosaveProxy._options.save;
 
-  var saveFunction;
+  let saveFunction;
   if (typeof saveOption === 'function') {
     saveFunction = saveOption;
   } else {

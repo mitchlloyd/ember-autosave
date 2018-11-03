@@ -6,7 +6,7 @@ import Route from '@ember/routing/route';
 
 export default Route.extend({
   updatePost: on('init', function() {
-    var store = this.store;
+    let store = this.store;
 
     setInterval(function() {
       run(function() {

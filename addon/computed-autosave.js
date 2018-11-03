@@ -25,6 +25,7 @@ export default function computedAutosave() {
 
     set: function(key, value, proxy){
       set(proxy, 'content', value);
+
       return proxy;
     }
   };
