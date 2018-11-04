@@ -1,6 +1,6 @@
 import { set } from '@ember/object';
 import { helper as buildHelper } from '@ember/component/helper';
-import { fillIn, find } from '@ember/test-helpers'
+import { fillIn, find } from '@ember/test-helpers';
 import { AutosaveProxy } from 'ember-autosave';
 import { setupRenderingTest, module, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
