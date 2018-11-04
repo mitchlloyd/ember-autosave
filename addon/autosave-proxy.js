@@ -1,5 +1,4 @@
 import { assert } from '@ember/debug';
-import { debounce, cancel } from '@ember/runloop';
 import EmberObject, { set, get } from '@ember/object';
 
 // Store properties off the autosave object to avoid triggering unknownProperty
@@ -18,7 +17,8 @@ let AutosaveProxy = EmberObject.extend({
       let options = privateProps.options;
       if (isConfiguredProperty(options, key)) {
         let saveDelay = options.saveDelay;
-        privateProps.pendingSave = debounce(this, save, this, saveDelay);
+        clearTimeout(privateProps.pendingSave);
+        privateProps.pendingSave = setTimeout(() => save(this), saveDelay);
       }
     }
   },
@@ -96,7 +96,7 @@ function flushPendingSave(autosaveProxy) {
   let pendingSave = privateStore.get(autosaveProxy).pendingSave;
   if (pendingSave !== undefined) {
     // Cancel the pending debounced function
-    cancel(pendingSave);
+    clearTimeout(pendingSave);
 
     // Immediately call save
     return save(autosaveProxy);
@@ -104,7 +104,7 @@ function flushPendingSave(autosaveProxy) {
 }
 
 function cancelPendingSave(autosaveProxy) {
-  cancel(privateStore.get(autosaveProxy).pendingSave);
+  clearTimeout(privateStore.get(autosaveProxy).pendingSave);
 }
 
 export default AutosaveProxy;

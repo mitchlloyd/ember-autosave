@@ -31,6 +31,22 @@ test('setting a property eventually saves the model with the property', function
   assert.ok(model.save.called, 'save was called after ellapsed time');
 });
 
+test('many sets are debounced', function(assert) {
+  let Component = EmberObject.extend({
+    autosaveObject: autosave('model')
+  });
+
+  let component = Component.create({ model: model });
+
+  set(component, 'autosaveObject.name', '1');
+  set(component, 'autosaveObject.name', '2');
+  set(component, 'autosaveObject.name', 'Millie');
+
+  assert.ok(!model.save.called, 'save was not called immediately');
+  clock.tick(1000);
+  assert.equal(model.save.callCount, 1, 'save was called once after ellapsed time');
+});
+
 test('calling flushPendingSave immediately saves the target', function(assert) {
   let Component = EmberObject.extend({
     autosaveObject: autosave('model')
