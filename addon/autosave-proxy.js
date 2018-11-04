@@ -93,6 +93,10 @@ function save(autosaveProxy) {
 }
 
 function flushPendingSave(autosaveProxy) {
+  if (!autosaveProxy) {
+    return;
+  }
+
   let pendingSave = privateStore.get(autosaveProxy).pendingSave;
   if (pendingSave !== undefined) {
     // Cancel the pending debounced function
@@ -104,6 +108,10 @@ function flushPendingSave(autosaveProxy) {
 }
 
 function cancelPendingSave(autosaveProxy) {
+  if (!autosaveProxy) {
+    return;
+  }
+
   clearTimeout(privateStore.get(autosaveProxy).pendingSave);
 }
 

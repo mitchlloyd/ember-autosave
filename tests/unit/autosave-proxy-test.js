@@ -1,17 +1,12 @@
 import { run } from '@ember/runloop';
 import EmberObject from '@ember/object';
 import sinon from 'sinon';
-import { AutosaveProxy, flushPendingSave } from 'ember-autosave';
+import { AutosaveProxy, flushPendingSave, cancelPendingSave } from 'ember-autosave';
 import { module, test } from 'qunit';
 
 let model;
 let autosaveObject;
 let clock;
-
-/*
-  These tests don't work in Ember 3.5.0 because we need this fix:
-  https://github.com/emberjs/ember.js/commit/e4e5e3c0e6f2e150457f8bd16557b0092b18126b
-*/
 
 module('AutosaveProxy', function(hooks) {
   hooks.beforeEach(function() {
@@ -84,14 +79,28 @@ module('AutosaveProxy', function(hooks) {
     assert.ok(!model.save.called, 'save was not called on same value');
   });
 
-  test('flushPendingSave cancels debounced save', function(assert) {
+  test('cancelPendingSave cancels debounced save', function(assert) {
     autosaveObject.set('name', 'Millie');
     assert.ok(!model.save.called, 'save was not called immediately');
 
-    flushPendingSave(autosaveObject);
-    assert.equal(model.save.callCount, 1, 'save called once after calling flushPendingSave');
-
+    cancelPendingSave(autosaveObject);
     clock.tick(1000);
-    assert.equal(model.save.callCount, 1, 'save not called later from debounce');
+    assert.equal(model.save.callCount, 0, 'save not called');
+  });
+
+  test('calling flushPendingSave on undefined or null is a noop', function(assert) {
+    assert.expect(0);
+    flushPendingSave(null);
+    flushPendingSave(undefined);
+    flushPendingSave(0);
+    flushPendingSave(false);
+  });
+
+  test('calling cancelPendingSave on undefined or null is a noop', function(assert) {
+    assert.expect(0);
+    flushPendingSave(null);
+    flushPendingSave(undefined);
+    flushPendingSave(0);
+    flushPendingSave(false);
   });
 });
