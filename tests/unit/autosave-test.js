@@ -56,7 +56,7 @@ test('calling flushPendingSave immediately saves the target', function(assert) {
   set(component, 'autosaveObject.name', 'Millie');
 
   assert.ok(!model.save.called, 'save was not called immediately');
-  flushPendingSave(component.autosaveObject);
+  flushPendingSave(component.get('autosaveObject'));
   assert.ok(model.save.called, 'save was called after setting new model');
 });
 
