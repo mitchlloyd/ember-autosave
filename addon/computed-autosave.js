@@ -1,5 +1,5 @@
-import { get, set, computed } from '@ember/object';
-import AutosaveProxy from './autosave-proxy';
+import { get, computed } from '@ember/object';
+import AutosaveProxy, { setProxyTarget } from './autosave-proxy';
 
 export default function computedAutosave() {
   let propertyName, options;
@@ -15,16 +15,16 @@ export default function computedAutosave() {
     get: function() {
       options.context = this;
 
-      let content;
+      let model;
       if (propertyName) {
-        content = get(this, propertyName);
+        model = get(this, propertyName);
       }
 
-      return AutosaveProxy.create({ content: content }, options);
+      return AutosaveProxy.create(model, options);
     },
 
     set: function(key, value, proxy){
-      set(proxy, 'content', value);
+      setProxyTarget(proxy, value);
 
       return proxy;
     }

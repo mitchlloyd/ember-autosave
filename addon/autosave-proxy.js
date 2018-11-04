@@ -6,39 +6,45 @@ import EmberObject, {
   computed
 } from '@ember/object';
 
-let AutosaveProxy = EmberObject.extend({
-  _pendingSave: null,
-  _options: null,
-  _content: null,
+const targetProxyKey = '__emberAutosaveTargetProxy__';
+const storageKey = '__emberAutosaveStorage__';
 
-  content: computed('content', {
+let AutosaveProxy = EmberObject.extend({
+  // This must be defined on the prototype to be considered a "known" property.
+  [storageKey]: null,
+
+  [targetProxyKey]: computed(targetProxyKey, {
     get: function(){
-      return this._content;
+      return this[storageKey].target;
     },
 
     set: function(key, value) {
       flushPendingSave(this);
-      this._content = value;
+      this[storageKey].target = value;
+
       return value;
     }
   }),
 
   setUnknownProperty: function(key, value) {
-    let oldValue = get(this._content, key);
+    let target = this[storageKey].target;
+    let oldValue = get(target, key);
 
     if (oldValue !== value) {
-      set(this._content, key, value);
+      set(target, key, value);
       this.notifyPropertyChange(key);
 
-      if (isConfiguredProperty(this._options, key)) {
-        let saveDelay = this._options.saveDelay;
-        this._pendingSave = debounce(this, save, this, saveDelay);
+      let options = this[storageKey].options;
+      if (isConfiguredProperty(options, key)) {
+        let saveDelay = options.saveDelay;
+        this[storageKey].pendingSave = debounce(this, save, this, saveDelay);
       }
     }
   },
 
   unknownProperty: function(key) {
-    return get(this._content, key);
+    let storage = get(this, storageKey);
+    return get(storage.target, key);
   },
 
   willDestroy: function() {
@@ -51,15 +57,15 @@ AutosaveProxy.reopenClass({
     save: function(model) {
       model.save();
     },
-
-    saveDelay: 1000
+    saveDelay: 1000,
+    context: undefined
   },
 
   config: function(options) {
     this.options = options;
   },
 
-  create: function(attrs, localOptions) {
+  create: function(target, localOptions) {
     let options = Object.assign(
       {},
       this.defaultOptions, // Default library options
@@ -67,15 +73,17 @@ AutosaveProxy.reopenClass({
       localOptions, // Local custom config options
     );
 
-    attrs._options = options;
-
-    if (attrs.content === undefined) {
-      attrs.content = {};
-    }
-
-    let obj = this._super(attrs);
-
-    return obj;
+    // Cannot use EmberObject.init() for this because it happens too late.
+    // this._super() set properties before init is called.
+    let attrs = {
+      [storageKey]: {
+        target: undefined,
+        pendingSave: undefined,
+        options,
+      },
+      [targetProxyKey]: target || {},
+    };
+    return this._super(attrs);
   }
 });
 
@@ -92,8 +100,9 @@ function isConfiguredProperty(options, prop) {
 }
 
 function save(autosaveProxy) {
-  let context = autosaveProxy._options.context;
-  let saveOption = autosaveProxy._options.save;
+  let options = autosaveProxy[storageKey].options;
+  let context = options.context;
+  let saveOption = options.save;
 
   let saveFunction;
   if (typeof saveOption === 'function') {
@@ -102,13 +111,13 @@ function save(autosaveProxy) {
     saveFunction = context[saveOption];
   }
 
-  autosaveProxy._pendingSave = null;
-  return saveFunction.call(context, autosaveProxy._content);
+  autosaveProxy[storageKey].pendingSave = undefined;
+  return saveFunction.call(context, autosaveProxy[storageKey].target);
 }
 
 function flushPendingSave(autosaveProxy) {
-  let pendingSave = autosaveProxy._pendingSave;
-  if (pendingSave !== null) {
+  let pendingSave = autosaveProxy[storageKey].pendingSave;
+  if (pendingSave !== undefined) {
     // Cancel the pending debounced function
     cancel(pendingSave);
 
@@ -118,8 +127,12 @@ function flushPendingSave(autosaveProxy) {
 }
 
 function cancelPendingSave(autosaveProxy) {
-  cancel(autosaveProxy._pendingSave);
+  cancel(autosaveProxy[storageKey].pendingSave);
+}
+
+function setProxyTarget(autosaveProxy, obj) {
+  set(autosaveProxy, targetProxyKey, obj);
 }
 
 export default AutosaveProxy;
-export { flushPendingSave, cancelPendingSave };
+export { flushPendingSave, cancelPendingSave, setProxyTarget };

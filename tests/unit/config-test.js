@@ -19,7 +19,7 @@ module('Configuration', {
 test('globally overriding saveDelay', function(assert) {
   AutosaveProxy.config({ saveDelay: 500 });
   let model = EmberObject.create({ save: sinon.spy() });
-  let autosaveObject = AutosaveProxy.create({ content: model });
+  let autosaveObject = AutosaveProxy.create(model);
 
   autosaveObject.set('name', 'Millie');
   clock.tick(500);
@@ -28,7 +28,7 @@ test('globally overriding saveDelay', function(assert) {
 
 test('locally overriding saveDelay', function(assert) {
   let model = EmberObject.create({ save: sinon.spy() });
-  let autosaveObject = AutosaveProxy.create({ content: model }, { saveDelay: 250 });
+  let autosaveObject = AutosaveProxy.create(model, { saveDelay: 250 });
 
   autosaveObject.set('name', 'Millie');
   clock.tick(250);
@@ -43,7 +43,7 @@ test('globally overriding save function', function(assert) {
   });
 
   let model = EmberObject.create({ configuredSave: sinon.spy() });
-  let autoSaveObject = AutosaveProxy.create({ content: model });
+  let autoSaveObject = AutosaveProxy.create(model);
 
   autoSaveObject.set('name', 'Millie');
   clock.tick(1000);
@@ -52,7 +52,7 @@ test('globally overriding save function', function(assert) {
 
 test('Configuring only fields - only saves when specified field is triggred', function(assert) {
   let model = EmberObject.create({ save: sinon.spy() });
-  let autoSaveObject = AutosaveProxy.create({ content: model }, { only: ['name'] });
+  let autoSaveObject = AutosaveProxy.create(model, { only: ['name'] });
 
   autoSaveObject.set('age', 97);
   clock.tick(1000);
@@ -65,7 +65,7 @@ test('Configuring only fields - only saves when specified field is triggred', fu
 
 test('configuring `except` fields - only saves when specified field is triggred', function(assert) {
   let model = EmberObject.create({ save: sinon.spy() });
-  let autoSaveObject = AutosaveProxy.create({ content: model }, { except: ['age'] });
+  let autoSaveObject = AutosaveProxy.create(model, { except: ['age'] });
 
   autoSaveObject.set('age', 97);
   clock.tick(1000);

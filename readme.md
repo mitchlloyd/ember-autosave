@@ -90,7 +90,7 @@ import { AutosaveProxy } from 'ember-autosave';
 
 export default Ember.Component.extend({
   didReceiveAttrs() {
-    this.post = AutosaveProxy.create({ content: this.get('model') });
+    this.post = AutosaveProxy.create(this.get('model'));
   }
 });
 ```
@@ -158,7 +158,7 @@ import { AutosaveProxy } from 'ember-autosave';
 export default Ember.Component.extend({
   didReceiveAttrs() {
     this.post = AutosaveProxy.create(
-      { content: model },
+      model,
       { saveDelay: 3000, save: this.specialSave.bind(this) }
     );
   },

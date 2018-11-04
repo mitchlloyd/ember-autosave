@@ -1,7 +1,7 @@
 import { run } from '@ember/runloop';
 import EmberObject from '@ember/object';
 import sinon from 'sinon';
-import { AutosaveProxy, flushPendingSave } from 'ember-autosave';
+import { AutosaveProxy, flushPendingSave, setProxyTarget } from 'ember-autosave';
 import { module, test } from 'qunit';
 
 let model;
@@ -16,7 +16,7 @@ let clock;
 module('AutosaveProxy', function(hooks) {
   hooks.beforeEach(function() {
     model = EmberObject.create({ save: sinon.spy() });
-    autosaveObject = AutosaveProxy.create({ content: model });
+    autosaveObject = AutosaveProxy.create(model);
     clock = sinon.useFakeTimers();
   });
 
@@ -70,7 +70,7 @@ module('AutosaveProxy', function(hooks) {
 
   test('changing the content flushes a pending save', function(assert) {
     autosaveObject.set('name', 'Millie');
-    autosaveObject.set('content', {});
+    setProxyTarget(autosaveObject, {});
     assert.ok(model.save.called, 'save was called before the content changed');
   });
 

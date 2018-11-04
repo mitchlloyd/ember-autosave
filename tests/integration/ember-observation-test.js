@@ -10,7 +10,7 @@ module('ember-observation', function(hooks) {
 
   test('AutosaveProxy notifies Ember of property changes', async function(assert) {
     let model = { prop: 'value', save() {} };
-    this.set('proxy', AutosaveProxy.create({ content: model }));
+    this.set('proxy', AutosaveProxy.create(model));
 
     await this.render(hbs`
       {{input value=proxy.prop}}
@@ -48,7 +48,7 @@ module('ember-observation', function(hooks) {
     this.owner.register('helper:count-renders', buildHelper(countRenders));
 
     let model = { prop: 1 };
-    this.set('proxy', AutosaveProxy.create({ content: model }));
+    this.set('proxy', AutosaveProxy.create(model));
 
     await this.render(hbs`
       {{count-renders}}
