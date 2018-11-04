@@ -1,7 +1,7 @@
 import { run } from '@ember/runloop';
 import EmberObject from '@ember/object';
 import sinon from 'sinon';
-import { AutosaveProxy, flushPendingSave, setProxyTarget } from 'ember-autosave';
+import { AutosaveProxy, flushPendingSave } from 'ember-autosave';
 import { module, test } from 'qunit';
 
 let model;
@@ -68,10 +68,12 @@ module('AutosaveProxy', function(hooks) {
     assert.equal(model.save.callCount, 1, 'save was only called once');
   });
 
-  test('changing the content flushes a pending save', function(assert) {
+  test('calling flushPendingSave flushes a pending save', function(assert) {
     autosaveObject.set('name', 'Millie');
-    setProxyTarget(autosaveObject, {});
-    assert.ok(model.save.called, 'save was called before the content changed');
+    flushPendingSave(autosaveObject);
+    assert.equal(model.save.callCount, 1, 'save immediately called');
+    clock.tick(1000);
+    assert.equal(model.save.callCount, 1, 'save not called again after debounce period');
   });
 
   test('setting a property to the same value', function(assert) {

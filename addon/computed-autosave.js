@@ -1,14 +1,15 @@
 import { get, computed } from '@ember/object';
-import AutosaveProxy, { setProxyTarget } from './autosave-proxy';
+import AutosaveProxy from './autosave-proxy';
 
 export default function computedAutosave() {
   let propertyName, options;
 
   if (typeof arguments[0] === 'string') {
-    propertyName = arguments[0];
-    options = arguments[1] || {};
+    [propertyName, options = {}] = arguments;
   } else if (typeof arguments[0] === 'object') {
     options = arguments[0];
+  } else {
+    throw new Error('Invalid arguments passed to computedAutosave: ', arguments);
   }
 
   let computedArgs = {
@@ -22,12 +23,6 @@ export default function computedAutosave() {
 
       return AutosaveProxy.create(model, options);
     },
-
-    set: function(key, value, proxy){
-      setProxyTarget(proxy, value);
-
-      return proxy;
-    }
   };
 
   if (propertyName) {

@@ -1,50 +1,30 @@
 import { assert } from '@ember/debug';
 import { debounce, cancel } from '@ember/runloop';
-import EmberObject, {
-  set,
-  get,
-  computed
-} from '@ember/object';
+import EmberObject, { set, get } from '@ember/object';
 
-const targetProxyKey = '__emberAutosaveTargetProxy__';
-const storageKey = '__emberAutosaveStorage__';
+// Store properties off the autosave object to avoid triggering unknownProperty
+// hooks and to avoid conflict with the developer-provided model object.
+const privateStore = new WeakMap();
 
 let AutosaveProxy = EmberObject.extend({
-  // This must be defined on the prototype to be considered a "known" property.
-  [storageKey]: null,
-
-  [targetProxyKey]: computed(targetProxyKey, {
-    get: function(){
-      return this[storageKey].target;
-    },
-
-    set: function(key, value) {
-      flushPendingSave(this);
-      this[storageKey].target = value;
-
-      return value;
-    }
-  }),
-
   setUnknownProperty: function(key, value) {
-    let target = this[storageKey].target;
-    let oldValue = get(target, key);
+    let privateProps = privateStore.get(this);
+    let oldValue = get(privateProps.target, key);
 
     if (oldValue !== value) {
-      set(target, key, value);
+      set(privateProps.target, key, value);
       this.notifyPropertyChange(key);
 
-      let options = this[storageKey].options;
+      let options = privateProps.options;
       if (isConfiguredProperty(options, key)) {
         let saveDelay = options.saveDelay;
-        this[storageKey].pendingSave = debounce(this, save, this, saveDelay);
+        privateProps.pendingSave = debounce(this, save, this, saveDelay);
       }
     }
   },
 
   unknownProperty: function(key) {
-    let storage = get(this, storageKey);
-    return get(storage.target, key);
+    return get(privateStore.get(this).target, key);
   },
 
   willDestroy: function() {
@@ -73,17 +53,14 @@ AutosaveProxy.reopenClass({
       localOptions, // Local custom config options
     );
 
-    // Cannot use EmberObject.init() for this because it happens too late.
-    // this._super() set properties before init is called.
-    let attrs = {
-      [storageKey]: {
-        target: undefined,
-        pendingSave: undefined,
-        options,
-      },
-      [targetProxyKey]: target || {},
-    };
-    return this._super(attrs);
+    let obj = this._super();
+    privateStore.set(obj, {
+      target: target || {},
+      pendingSave: undefined,
+      options,
+    });
+
+    return obj;
   }
 });
 
@@ -100,23 +77,23 @@ function isConfiguredProperty(options, prop) {
 }
 
 function save(autosaveProxy) {
-  let options = autosaveProxy[storageKey].options;
-  let context = options.context;
-  let saveOption = options.save;
+  let privateProps = privateStore.get(autosaveProxy);
+  let { context, save } = privateProps.options;
 
   let saveFunction;
-  if (typeof saveOption === 'function') {
-    saveFunction = saveOption;
+  if (typeof save === 'function') {
+    saveFunction = save;
   } else {
-    saveFunction = context[saveOption];
+    saveFunction = context[save];
   }
 
-  autosaveProxy[storageKey].pendingSave = undefined;
-  return saveFunction.call(context, autosaveProxy[storageKey].target);
+  privateProps.pendingSave = undefined;
+
+  return saveFunction.call(context, privateProps.target);
 }
 
 function flushPendingSave(autosaveProxy) {
-  let pendingSave = autosaveProxy[storageKey].pendingSave;
+  let pendingSave = privateStore.get(autosaveProxy).pendingSave;
   if (pendingSave !== undefined) {
     // Cancel the pending debounced function
     cancel(pendingSave);
@@ -127,12 +104,8 @@ function flushPendingSave(autosaveProxy) {
 }
 
 function cancelPendingSave(autosaveProxy) {
-  cancel(autosaveProxy[storageKey].pendingSave);
-}
-
-function setProxyTarget(autosaveProxy, obj) {
-  set(autosaveProxy, targetProxyKey, obj);
+  cancel(privateStore.get(autosaveProxy).pendingSave);
 }
 
 export default AutosaveProxy;
-export { flushPendingSave, cancelPendingSave, setProxyTarget };
+export { flushPendingSave, cancelPendingSave };

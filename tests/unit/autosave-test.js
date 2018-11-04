@@ -1,6 +1,6 @@
 import EmberObject, { set } from '@ember/object';
 import sinon from 'sinon';
-import autosave from 'ember-autosave';
+import autosave, { flushPendingSave } from 'ember-autosave';
 import { module, test } from 'qunit';
 
 let model;
@@ -29,6 +29,19 @@ test('setting a property eventually saves the model with the property', function
   assert.ok(!model.save.called, 'save was not called immediately');
   clock.tick(1000);
   assert.ok(model.save.called, 'save was called after ellapsed time');
+});
+
+test('calling flushPendingSave immediately saves the target', function(assert) {
+  let Component = EmberObject.extend({
+    autosaveObject: autosave('model')
+  });
+
+  let component = Component.create({ model: model });
+  set(component, 'autosaveObject.name', 'Millie');
+
+  assert.ok(!model.save.called, 'save was not called immediately');
+  flushPendingSave(component.autosaveObject);
+  assert.ok(model.save.called, 'save was called after setting new model');
 });
 
 test("using the computed property context and string for save", function(assert) {
