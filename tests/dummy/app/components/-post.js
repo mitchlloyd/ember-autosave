@@ -1,6 +1,6 @@
-import Ember from 'ember';
+import Component from '@ember/component';
 import autosave from 'ember-autosave';
 
-export default Ember.Component.extend({
+export default Component.extend({
   autosavePost: autosave('post')
 });

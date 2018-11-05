@@ -1,35 +1,28 @@
-import Ember from 'ember';
+import { get, computed } from '@ember/object';
 import AutosaveProxy from './autosave-proxy';
-var get = Ember.get;
-var set = Ember.set;
-var computed = Ember.computed;
 
 export default function computedAutosave() {
   let propertyName, options;
 
   if (typeof arguments[0] === 'string') {
-    propertyName = arguments[0];
-    options = arguments[1] || {};
+    [propertyName, options = {}] = arguments;
   } else if (typeof arguments[0] === 'object') {
     options = arguments[0];
+  } else {
+    throw new Error('Invalid arguments passed to computedAutosave: ', arguments);
   }
 
   let computedArgs = {
     get: function() {
       options.context = this;
 
-      let content;
+      let model;
       if (propertyName) {
-        content = get(this, propertyName);
+        model = get(this, propertyName);
       }
 
-      return AutosaveProxy.create({ content: content }, options);
+      return AutosaveProxy.create(model, options);
     },
-
-    set: function(key, value, proxy){
-      set(proxy, 'content', value);
-      return proxy;
-    }
   };
 
   if (propertyName) {

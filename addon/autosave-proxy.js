@@ -1,45 +1,30 @@
-import Ember from 'ember';
-var set = Ember.set;
-var get = Ember.get;
-var setProperties = Ember.setProperties;
-var debounce = Ember.run.debounce;
-var cancel = Ember.run.cancel;
-var computed = Ember.computed;
+import { assert } from '@ember/debug';
+import EmberObject, { set, get } from '@ember/object';
 
-var AutosaveProxy = Ember.Object.extend({
-  _pendingSave: null,
-  _options: null,
-  _content: null,
+// Store properties off the autosave object to avoid triggering unknownProperty
+// hooks and to avoid conflict with the developer-provided model object.
+const privateStore = new WeakMap();
 
-  content: computed('content', {
-    get: function(){
-      return this._content;
-    },
-
-    set: function(key, value) {
-      flushPendingSave(this);
-      this._content = value;
-      return value;
-    }
-  }),
-
+let AutosaveProxy = EmberObject.extend({
   setUnknownProperty: function(key, value) {
-    var oldValue = Ember.get(this._content, key);
+    let privateProps = privateStore.get(this);
+    let oldValue = get(privateProps.target, key);
 
     if (oldValue !== value) {
-      this.propertyWillChange(key);
-      set(this._content, key, value);
-      this.propertyDidChange(key);
+      set(privateProps.target, key, value);
+      this.notifyPropertyChange(key);
 
-      if (isConfiguredProperty(this._options, key)) {
-        var saveDelay = this._options.saveDelay;
-        this._pendingSave = debounce(this, save, this, saveDelay);
+      let options = privateProps.options;
+      if (isConfiguredProperty(options, key)) {
+        let saveDelay = options.saveDelay;
+        clearTimeout(privateProps.pendingSave);
+        privateProps.pendingSave = setTimeout(() => save(this), saveDelay);
       }
     }
   },
 
   unknownProperty: function(key) {
-    return get(this._content, key);
+    return get(privateStore.get(this).target, key);
   },
 
   willDestroy: function() {
@@ -52,38 +37,35 @@ AutosaveProxy.reopenClass({
     save: function(model) {
       model.save();
     },
-
-    saveDelay: 1000
+    saveDelay: 1000,
+    context: undefined
   },
 
   config: function(options) {
     this.options = options;
   },
 
-  create: function(attrs, localOptions) {
-    // Default library options
-    let options = Ember.copy(this.defaultOptions);
+  create: function(target, localOptions) {
+    let options = Object.assign(
+      {},
+      this.defaultOptions, // Default library options
+      this.options, // Global custom config options
+      localOptions, // Local custom config options
+    );
 
-    // Global custom config options
-    setProperties(options, this.options);
-
-    // Local custom config options
-    setProperties(options, localOptions);
-
-    attrs._options = options;
-
-    if (attrs.content === undefined) {
-      attrs.content = {};
-    }
-
-    var obj = this._super(attrs);
+    let obj = this._super();
+    privateStore.set(obj, {
+      target: target || {},
+      pendingSave: undefined,
+      options,
+    });
 
     return obj;
   }
 });
 
 function isConfiguredProperty(options, prop) {
-  Ember.assert("You can configure the `only` option or the `except` option, but not both", !(options.only && options.except));
+  assert("You can configure the `only` option or the `except` option, but not both", !(options.only && options.except));
 
   if (options.only) {
     return options.only.indexOf(prop) !== -1;
@@ -95,36 +77,42 @@ function isConfiguredProperty(options, prop) {
 }
 
 function save(autosaveProxy) {
-  var context = autosaveProxy._options.context;
-  var saveOption = autosaveProxy._options.save;
+  let privateProps = privateStore.get(autosaveProxy);
+  let { context, save } = privateProps.options;
 
-  var saveFunction;
-  if (typeof saveOption === 'function') {
-    saveFunction = saveOption;
+  let saveFunction;
+  if (typeof save === 'function') {
+    saveFunction = save;
   } else {
-    saveFunction = context[saveOption];
+    saveFunction = context[save];
   }
 
-  autosaveProxy._pendingSave = null;
-  return saveFunction.call(context, autosaveProxy._content);
+  privateProps.pendingSave = undefined;
+
+  return saveFunction.call(context, privateProps.target);
 }
 
 function flushPendingSave(autosaveProxy) {
-  let pendingSave = autosaveProxy._pendingSave;
-  if (pendingSave) {
-    var context = pendingSave[0];
-    var fn = pendingSave[1];
+  if (!autosaveProxy) {
+    return;
+  }
 
+  let pendingSave = privateStore.get(autosaveProxy).pendingSave;
+  if (pendingSave !== undefined) {
     // Cancel the pending debounced function
-    cancel(pendingSave);
+    clearTimeout(pendingSave);
 
-    // Immediately call the pending save
-    return fn(context);
+    // Immediately call save
+    return save(autosaveProxy);
   }
 }
 
 function cancelPendingSave(autosaveProxy) {
-  cancel(autosaveProxy._pendingSave);
+  if (!autosaveProxy) {
+    return;
+  }
+
+  clearTimeout(privateStore.get(autosaveProxy).pendingSave);
 }
 
 export default AutosaveProxy;

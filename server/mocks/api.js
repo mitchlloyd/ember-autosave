@@ -1,6 +1,6 @@
 module.exports = function(app) {
-  var express = require('express');
-  var apiRouter = express.Router();
+  let express = require('express');
+  let apiRouter = express.Router();
 
   apiRouter.get('/posts', function(req, res) {
     res.send({ posts: posts });
@@ -11,8 +11,8 @@ module.exports = function(app) {
   });
 
   apiRouter.put('/posts/:id', function(req, res) {
-    var post = find(posts, req.params.id);
-    var postPayload = req.body.post
+    let post = find(posts, req.params.id);
+    let postPayload = req.body.post
 
     post.title = postPayload.title;
     post.body = postPayload.body;
@@ -23,7 +23,7 @@ module.exports = function(app) {
   app.use('/api/', apiRouter);
 };
 
-var posts = [
+let posts = [
   { id: '1', title: 'First post title', body: 'First post body' },
   { id: '2', title: 'Second post title', body: 'Second post body' }
 ]

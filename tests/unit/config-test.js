@@ -1,9 +1,9 @@
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 import sinon from 'sinon';
 import { module, test } from 'qunit';
 import { AutosaveProxy } from 'ember-autosave';
 
-var clock;
+let clock;
 
 module('Configuration', {
   beforeEach: function() {
@@ -18,8 +18,8 @@ module('Configuration', {
 
 test('globally overriding saveDelay', function(assert) {
   AutosaveProxy.config({ saveDelay: 500 });
-  var model = Ember.Object.create({ save: sinon.spy() });
-  var autosaveObject = AutosaveProxy.create({ content: model });
+  let model = EmberObject.create({ save: sinon.spy() });
+  let autosaveObject = AutosaveProxy.create(model);
 
   autosaveObject.set('name', 'Millie');
   clock.tick(500);
@@ -27,8 +27,8 @@ test('globally overriding saveDelay', function(assert) {
 });
 
 test('locally overriding saveDelay', function(assert) {
-  var model = Ember.Object.create({ save: sinon.spy() });
-  var autosaveObject = AutosaveProxy.create({ content: model }, { saveDelay: 250 });
+  let model = EmberObject.create({ save: sinon.spy() });
+  let autosaveObject = AutosaveProxy.create(model, { saveDelay: 250 });
 
   autosaveObject.set('name', 'Millie');
   clock.tick(250);
@@ -42,8 +42,8 @@ test('globally overriding save function', function(assert) {
     }
   });
 
-  var model = Ember.Object.create({ configuredSave: sinon.spy() });
-  var autoSaveObject = AutosaveProxy.create({ content: model });
+  let model = EmberObject.create({ configuredSave: sinon.spy() });
+  let autoSaveObject = AutosaveProxy.create(model);
 
   autoSaveObject.set('name', 'Millie');
   clock.tick(1000);
@@ -51,8 +51,8 @@ test('globally overriding save function', function(assert) {
 });
 
 test('Configuring only fields - only saves when specified field is triggred', function(assert) {
-  var model = Ember.Object.create({ save: sinon.spy() });
-  var autoSaveObject = AutosaveProxy.create({ content: model }, { only: ['name'] });
+  let model = EmberObject.create({ save: sinon.spy() });
+  let autoSaveObject = AutosaveProxy.create(model, { only: ['name'] });
 
   autoSaveObject.set('age', 97);
   clock.tick(1000);
@@ -64,8 +64,8 @@ test('Configuring only fields - only saves when specified field is triggred', fu
 });
 
 test('configuring `except` fields - only saves when specified field is triggred', function(assert) {
-  var model = Ember.Object.create({ save: sinon.spy() });
-  var autoSaveObject = AutosaveProxy.create({ content: model }, { except: ['age'] });
+  let model = EmberObject.create({ save: sinon.spy() });
+  let autoSaveObject = AutosaveProxy.create(model, { except: ['age'] });
 
   autoSaveObject.set('age', 97);
   clock.tick(1000);

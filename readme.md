@@ -10,15 +10,14 @@ ember install ember-autosave
 
 ### Compatibility
 
-If you are using a version of Ember before 1.12.0, you **must** use version
-0.3.x or older of this library. In general, version 0.3.x of Ember Autosave will
-keep compatibility with the Ember 1.x series (although there may be deprecations
-warnings) and version 1.x.x will keep compatibility with the Ember 2.x series.
+If you are using a version of Ember before 3.x you many need to use an older
+version of this library.
 
 | Ember Version    | Ember Autosave       |
 | -----------------|----------------------|
-| 1.8 through 1.13 | 0.3.x                |
-| 2.0 and beyond   | 1.x.x                |
+| 1.8 through 1.13 | 0.3                  |
+| 2.0              | 1.x & 2.x            |
+| 3.0 and beyond   | 3.x                  |
 
 ## Usage
 
@@ -43,7 +42,7 @@ export default Ember.Component.extend({
 ```
 
 It might be the case that the model data you're working with is internal to a
-component and was not passed in as an object. In this case you don't have to
+component and was not passed in as an attribute. In this case you don't have to
 pass a string representing a property to `autosave`. The library will store
 attributes on a blank object that will be passed to a provided save function.
 
@@ -63,41 +62,50 @@ export default Ember.Component.extend({
 });
 ```
 
-Naturally, you may want to immediately update the properties on some model
-and also provide a custom `save` function.
-
-```javascript
-import Ember from 'ember';
-import autosave from 'ember-autosave';
-
-export default Ember.Component.extend({
-  post: autosave('model', {
-    save(model) {
-      model.set('user', this.get('user'));
-      model.save();
-    }
-  })
-});
-```
-
 ### Using AutosaveProxy
 
 You may also use the AutosaveProxy object directly.
 
 ```javascript
 import Ember from 'ember';
-import { AutosaveProxy } from 'ember-autosave';
+import { AutosaveProxy, flushPendingSave } from 'ember-autosave';
 
 export default Ember.Component.extend({
   didReceiveAttrs() {
-    this.post = AutosaveProxy.create({ content: this.get('model') });
+    this._super(...arguments)
+    this.post = AutosaveProxy.create(this.get('model'));
+  }
+});
+```
+
+Historically this project was used with Ember Data which keeps long-lived
+model objects. This side-steps some common timing issues where a pending save
+function is called after a model is destroyed. Depending on your situation,
+you may find it necessary or desirable to cancel or immeidately flush a
+pending save.
+
+```javascript
+import Ember from 'ember';
+import { AutosaveProxy, flushPendingSave, cancelPendingSave } from 'ember-autosave';
+
+export default Ember.Component.extend({
+  didReceiveAttrs() {
+    this._super(...arguments);
+    flushPendingSave(this.post);
+    this.post = AutosaveProxy.create(this.get('model'));
+  }
+
+  willDestroy() {
+    this._super(...arguments);
+    cancelPendingSave(this.post);
+    this.post = AutosaveProxy.create(this.get('model'));
   }
 });
 ```
 
 ### Advanced Configuration
 
-By default, an AutosaveProxy object will call `save()` on its content once input stops
+By default, an AutosaveProxy object will call `save()` on its target once input stops
 for 1 second. You can configure this behavior globally or for each AutosaveProxy
 instance.
 
@@ -158,14 +166,10 @@ import { AutosaveProxy } from 'ember-autosave';
 export default Ember.Component.extend({
   didReceiveAttrs() {
     this.post = AutosaveProxy.create(
-      { content: model },
-      { saveDelay: 3000, save: this.specialSave.bind(this) }
+      this.get('model'),
+      { saveDelay: 3000, save: (model) => model.specialSave() }
     );
   },
-
-  specialSave(model) {
-    // Your special save logic here
-  }
 });
 ```
 
@@ -178,7 +182,7 @@ and visit http://localhost:4200 in your browser.
 
 There is one breaking change when migrating from an earlier version to 1.0. In
 earlier versions, configured `save` functions were invoked with the context of
-the proxy content.
+the proxy target.
 
 ```javascript
 import Ember from 'ember';
@@ -235,3 +239,34 @@ AutosaveProxy.config({
   }
 });
 ```
+
+## Upgrading to 2.0
+
+Version 2.0 has one semantic change that better aligns it with typical
+Ember.set behavior. Before 2.0, setting a property to the same value would
+trigger a change (render) and enqueue a `save`. In 2.0, if the set property
+`===` the previous value, `save` will not be called and Ember will not be
+notified of a property change.
+
+## Upgrading to 3.0
+
+Previously, the AutosaveProxy's model was set using the `content` property
+(mirroring the behavior of Ember.ObjectProxy). This caused issues for users
+that had a `content` property on their models. Now `AutosaveProxy` objects
+are created without specifying a key (`AutosaveProxy.create(model)`) and
+models can freely use the `content` key.
+
+Pre 3.0:
+
+```javascript
+AutosaveProxy.config({ content: model });
+```
+
+3.0 and beyond:
+
+```javascript
+AutosaveProxy.create(model);
+```
+
+Additionally 3.0 is only guaranteed to be compatible with Ember 3.x because
+of a change in Ember's [property change notification API](https://www.emberjs.com/deprecations/v3.x/#toc_use-notifypropertychange-instead-of-propertywillchange-and-propertydidchange).

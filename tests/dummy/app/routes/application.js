@@ -1,12 +1,15 @@
 /* globals setInterval */
-import Ember from 'ember';
+import { run } from '@ember/runloop';
 
-export default Ember.Route.extend({
-  updatePost: Ember.on('init', function() {
-    var store = this.store;
+import { on } from '@ember/object/evented';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
+  updatePost: on('init', function() {
+    let store = this.store;
 
     setInterval(function() {
-      Ember.run(function() {
+      run(function() {
         store.pushPayload('post', {
           post: {
             id: 2,
