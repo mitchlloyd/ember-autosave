@@ -37,7 +37,7 @@ import Ember from 'ember';
 import autosave from 'ember-autosave';
 
 export default Ember.Component.extend({
-  post: autosave('model')
+  modelWithAutosave: autosave('model')
 });
 ```
 
@@ -54,7 +54,7 @@ const { inject } = Ember;
 export default Ember.Component.extend({
   store: inject.service();
 
-  post: autosave({
+  modelWithAutosave: autosave({
     save(attributes) {
       this.get('store').createRecord(attributes).save();
     }
@@ -73,7 +73,7 @@ import { AutosaveProxy, flushPendingSave } from 'ember-autosave';
 export default Ember.Component.extend({
   didReceiveAttrs() {
     this._super(...arguments)
-    this.post = AutosaveProxy.create(this.get('model'));
+    this.modelWithAutosave = AutosaveProxy.create(this.get('model'));
   }
 });
 ```
@@ -91,14 +91,14 @@ import { AutosaveProxy, flushPendingSave, cancelPendingSave } from 'ember-autosa
 export default Ember.Component.extend({
   didReceiveAttrs() {
     this._super(...arguments);
-    flushPendingSave(this.post);
-    this.post = AutosaveProxy.create(this.get('model'));
+    flushPendingSave(this.modelWithAutosave);
+    this.modelWithAutosave = AutosaveProxy.create(this.get('model'));
   }
 
   willDestroy() {
     this._super(...arguments);
-    cancelPendingSave(this.post);
-    this.post = AutosaveProxy.create(this.get('model'));
+    cancelPendingSave(this.modelWithAutosave);
+    this.modelWithAutosave = AutosaveProxy.create(this.get('model'));
   }
 });
 ```
@@ -144,7 +144,7 @@ import Ember from 'ember';
 import autosave from 'ember-autosave';
 
 export default Ember.Component.extend({
-  post: autosave('model', {
+  modelWithAutosave: autosave('model', {
     saveDelay: 3000,
 
     // Can be a function or a string pointing to a method.
@@ -165,7 +165,7 @@ import { AutosaveProxy } from 'ember-autosave';
 
 export default Ember.Component.extend({
   didReceiveAttrs() {
-    this.post = AutosaveProxy.create(
+    this.modelWithAutosave = AutosaveProxy.create(
       this.get('model'),
       { saveDelay: 3000, save: (model) => model.specialSave() }
     );
@@ -189,7 +189,7 @@ import Ember from 'ember';
 import autosave from 'ember-autosave';
 
 export default Ember.Component.extend({
-  post: autosave('model', {
+  modelWithAutosave: autosave('model', {
     save() {
       // `this` is the model property
       this.save();
@@ -209,7 +209,7 @@ import autosave from 'ember-autosave';
 export default Ember.Component.extend({
   someProp: 'hi',
 
-  post: autosave('model', {
+  modelWithAutosave: autosave('model', {
     save(model) {
       this.get('someProp'); // 'hi'
       model.save();
