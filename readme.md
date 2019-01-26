@@ -160,10 +160,10 @@ export default Ember.Component.extend({
 With the AutosaveProxy object.
 
 ```javascript
-import Ember from 'ember';
+import Component from '@ember/component';
 import { AutosaveProxy } from 'ember-autosave';
 
-export default Ember.Component.extend({
+export default Component.extend({
   didReceiveAttrs() {
     this.modelWithAutosave = AutosaveProxy.create(
       this.get('model'),
@@ -185,10 +185,10 @@ earlier versions, configured `save` functions were invoked with the context of
 the proxy target.
 
 ```javascript
-import Ember from 'ember';
+import Component from '@ember/component';
 import autosave from 'ember-autosave';
 
-export default Ember.Component.extend({
+export default Component.extend({
   modelWithAutosave: autosave('model', {
     save() {
       // `this` is the model property
@@ -203,10 +203,10 @@ the autosave property was defined (probably what you would expect). The `save`
 method receives the model as an argument.
 
 ```javascript
-import Ember from 'ember';
+import Component from '@ember/component';
 import autosave from 'ember-autosave';
 
-export default Ember.Component.extend({
+export default Component.extend({
   someProp: 'hi',
 
   modelWithAutosave: autosave('model', {
